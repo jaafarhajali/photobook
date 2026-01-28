@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Book Designer - Setup</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600;700&family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Setup Screen -->
+    <div id="setupScreen" class="setup-screen">
+        <div class="container">
+            <div class="setup-container animate-in">
+                <div class="setup-header">
+                    <h2>Let's Set Up Your Photo Book</h2>
+                    <p>Customize your book to match your vision</p>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <i class="fas fa-book"></i>
+                        Book Details
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Number of Pages</label>
+                            <input type="number" class="form-control" id="numPages" min="1" max="100" value="10" placeholder="Enter number of pages">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Orientation</label>
+                            <select class="form-select" id="orientation">
+                                <option value="landscape">Landscape (Horizontal)</option>
+                                <option value="portrait">Portrait (Vertical)</option>
+                                <option value="square">Square</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <i class="fas fa-th-large"></i>
+                        Choose Your Layout Style
+                    </div>
+                    <div class="layout-options">
+                        <div class="layout-card active" data-layout="classic">
+                            <i class="fas fa-square-full layout-icon"></i>
+                            <div class="layout-name">Classic</div>
+                            <div class="layout-desc">One large photo per page with caption</div>
+                        </div>
+                        <div class="layout-card" data-layout="modern">
+                            <i class="fas fa-th-large layout-icon"></i>
+                            <div class="layout-name">Modern</div>
+                            <div class="layout-desc">Two photos side by side</div>
+                        </div>
+                        <div class="layout-card" data-layout="collage">
+                            <i class="fas fa-grip layout-icon"></i>
+                            <div class="layout-name">Collage</div>
+                            <div class="layout-desc">Multiple photos in a grid</div>
+                        </div>
+                        <div class="layout-card" data-layout="minimal">
+                            <i class="fas fa-square layout-icon"></i>
+                            <div class="layout-name">Minimal</div>
+                            <div class="layout-desc">Clean and elegant single photo</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3">
+                    <button class="btn btn-next" style="background: #6c757d; width: auto;" onclick="window.location.href='index.html'">
+                        <i class="fas fa-arrow-left me-2"></i> Back
+                    </button>
+                    <button class="btn btn-next" id="startBtn">
+                        Start Designing <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        let selectedLayout = 'classic';
+
+        // Layout selection
+        document.querySelectorAll('.layout-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.layout-card').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                selectedLayout = this.getAttribute('data-layout');
+            });
+        });
+
+        // Start designing
+        document.getElementById('startBtn').addEventListener('click', function() {
+            const numPages = parseInt(document.getElementById('numPages').value) || 10;
+            const orientation = document.getElementById('orientation').value;
+            
+            if (numPages < 1 || numPages > 100) {
+                alert('Please enter a valid number of pages (1-100)');
+                return;
+            }
+
+            // Save settings to localStorage
+            const bookData = {
+                numPages: numPages,
+                orientation: orientation,
+                layout: selectedLayout,
+                pages: []
+            };
+
+            // Initialize pages
+            for (let i = 0; i < numPages; i++) {
+                bookData.pages.push({
+                    images: [],
+                    caption: '',
+                    backgroundColor: '#ffffff'
+                });
+            }
+
+            localStorage.setItem('bookData', JSON.stringify(bookData));
+            localStorage.setItem('currentPageIndex', '0');
+            
+            // Navigate to design page
+            window.location.href = 'design.html';
+        });
+    </script>
+</body>
+</html>

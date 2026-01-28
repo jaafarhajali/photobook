@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Book Designer - Welcome</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600;700&family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Welcome Screen -->
+    <div id="welcomeScreen" class="welcome-screen">
+        <div class="welcome-content animate-in">
+            <i class="fas fa-book-open welcome-icon"></i>
+            <h1 class="welcome-title">Photo Book Designer</h1>
+            <p class="welcome-subtitle">Transform your memories into beautiful, professional photo books</p>
+            <button class="btn btn-start" onclick="window.location.href='setup.html'">
+                Begin Your Journey <i class="fas fa-arrow-right ms-2"></i>
+            </button>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-palette feature-icon"></i>
+                    <div class="feature-title">Custom Layouts</div>
+                    <div class="feature-desc">4 beautiful designs</div>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-images feature-icon"></i>
+                    <div class="feature-title">Unlimited Photos</div>
+                    <div class="feature-desc">Add as many as you want</div>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-file-pdf feature-icon"></i>
+                    <div class="feature-title">PDF Export</div>
+                    <div class="feature-desc">Print-ready quality</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

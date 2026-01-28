@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Book Designer - Design</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600;700&family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Design Screen -->
+    <div id="designScreen" class="design-screen">
+        <div class="design-header">
+            <div class="container">
+                <div class="design-header-content">
+                    <h2 class="design-title">
+                        <i class="fas fa-book-open me-2"></i> My Photo Book
+                    </h2>
+                    <div class="header-actions">
+                        <button class="btn btn-header" onclick="window.location.href='setup.html'">
+                            <i class="fas fa-cog me-2"></i> Settings
+                        </button>
+                        <button class="btn btn-header btn-export" id="exportBtn">
+                            <i class="fas fa-download me-2"></i> Export PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="design-workspace">
+            <div class="sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">
+                        <i class="fas fa-upload"></i> Add Photos
+                    </div>
+                    <label for="imageUpload" class="btn-upload">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <div><strong>Click to Upload</strong></div>
+                        <small>or drag and drop</small>
+                    </label>
+                    <input type="file" id="imageUpload" multiple accept="image/*" class="hidden">
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">
+                        <i class="fas fa-fill-drip"></i> Background Color
+                    </div>
+                    <div class="color-picker-container">
+                        <input type="color" id="bgColor" class="color-picker" value="#ffffff">
+                        <span id="colorValue">#ffffff</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">
+                        <i class="fas fa-text-height"></i> Add Caption
+                    </div>
+                    <textarea class="form-control" id="pageCaption" rows="4" placeholder="Write a caption for this page..."></textarea>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">
+                        <i class="fas fa-info-circle"></i> Page Info
+                    </div>
+                    <div class="text-muted">
+                        <small><strong>Total Pages:</strong> <span id="totalPages">0</span></small><br>
+                        <small><strong>Layout:</strong> <span id="currentLayout">Classic</span></small><br>
+                        <small><strong>Orientation:</strong> <span id="currentOrientation">Landscape</span></small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="canvas-area">
+                <div id="pageCanvas" class="page-canvas landscape">
+                    <div class="page-number-badge">Page <span id="currentPageNumber">1</span></div>
+                    <div id="imageContainer" class="image-grid classic"></div>
+                    <div id="textContainer"></div>
+                </div>
+
+                <div class="page-navigation">
+                    <button class="btn btn-nav prev" id="prevBtn" disabled>
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </button>
+                    <div class="page-indicator">
+                        Page <span id="pageIndicator">1</span> of <span id="totalPagesIndicator">1</span>
+                    </div>
+                    <button class="btn btn-nav next" id="nextBtn">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- jsPDF and html2canvas for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <script>
+        // Load book data from localStorage
+        let bookData = JSON.parse(localStorage.getItem('bookData'));
+        let currentPageIndex = parseInt(localStorage.getItem('currentPageIndex')) || 0;
+
+        // Redirect to setup if no data
+        if (!bookData) {
+            window.location.href = 'setup.html';
+        }
+
+        // Initialize page
+        function init() {
+            document.getElementById('totalPages').textContent = bookData.numPages;
+            document.getElementById('currentLayout').textContent = bookData.layout.charAt(0).toUpperCase() + bookData.layout.slice(1);
+            document.getElementById('currentOrientation').textContent = bookData.orientation.charAt(0).toUpperCase() + bookData.orientation.slice(1);
+            document.getElementById('totalPagesIndicator').textContent = bookData.numPages;
+            
+            renderCurrentPage();
+            updateNavigationButtons();
+        }
+
+        // Handle image upload
+        document.getElementById('imageUpload').addEventListener('change', function(event) {
+            const files = Array.from(event.target.files);
+            
+            files.forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        bookData.pages[currentPageIndex].images.push(e.target.result);
+                        saveBookData();
+                        renderCurrentPage();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            event.target.value = '';
+        });
+
+        // Delete image
+        function deleteImage(imageIndex) {
+            bookData.pages[currentPageIndex].images.splice(imageIndex, 1);
+            saveBookData();
+            renderCurrentPage();
+        }
+
+        // Update page background
+        document.getElementById('bgColor').addEventListener('change', function() {
+            const color = this.value;
+            bookData.pages[currentPageIndex].backgroundColor = color;
+            document.getElementById('colorValue').textContent = color;
+            saveBookData();
+            renderCurrentPage();
+        });
+
+        // Update page caption
+        document.getElementById('pageCaption').addEventListener('change', function() {
+            const caption = this.value;
+            bookData.pages[currentPageIndex].caption = caption;
+            saveBookData();
+            renderCurrentPage();
+        });
+
+        // Render current page
+        function renderCurrentPage() {
+            const page = bookData.pages[currentPageIndex];
+            const canvas = document.getElementById('pageCanvas');
+            const imageContainer = document.getElementById('imageContainer');
+            const textContainer = document.getElementById('textContainer');
+            
+            // Update canvas orientation
+            canvas.className = `page-canvas ${bookData.orientation}`;
+            canvas.style.backgroundColor = page.backgroundColor;
+            
+            // Update image grid layout
+            imageContainer.className = `image-grid ${bookData.layout}`;
+            
+            // Render images
+            imageContainer.innerHTML = '';
+            page.images.forEach((imageSrc, index) => {
+                const imgDiv = document.createElement('div');
+                imgDiv.className = 'uploaded-image';
+                imgDiv.innerHTML = `
+                    <img src="${imageSrc}" alt="Photo ${index + 1}">
+                    <button class="delete-image" onclick="deleteImage(${index})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                imageContainer.appendChild(imgDiv);
+            });
+            
+            // Render caption
+            if (page.caption) {
+                textContainer.innerHTML = `<div class="page-text">${page.caption}</div>`;
+            } else {
+                textContainer.innerHTML = '';
+            }
+            
+            // Update page number
+            document.getElementById('currentPageNumber').textContent = currentPageIndex + 1;
+            document.getElementById('pageIndicator').textContent = currentPageIndex + 1;
+            
+            // Update caption input
+            document.getElementById('pageCaption').value = page.caption;
+            document.getElementById('bgColor').value = page.backgroundColor;
+            document.getElementById('colorValue').textContent = page.backgroundColor;
+        }
+
+        // Navigation
+        document.getElementById('prevBtn').addEventListener('click', function() {
+            if (currentPageIndex > 0) {
+                currentPageIndex--;
+                saveCurrentPageIndex();
+                renderCurrentPage();
+                updateNavigationButtons();
+            }
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', function() {
+            if (currentPageIndex < bookData.numPages - 1) {
+                currentPageIndex++;
+                saveCurrentPageIndex();
+                renderCurrentPage();
+                updateNavigationButtons();
+            }
+        });
+
+        function updateNavigationButtons() {
+            document.getElementById('prevBtn').disabled = currentPageIndex === 0;
+            document.getElementById('nextBtn').disabled = currentPageIndex === bookData.numPages - 1;
+        }
+
+        // Save functions
+        function saveBookData() {
+            localStorage.setItem('bookData', JSON.stringify(bookData));
+        }
+
+        function saveCurrentPageIndex() {
+            localStorage.setItem('currentPageIndex', currentPageIndex.toString());
+        }
+
+        // Export to PDF
+        document.getElementById('exportBtn').addEventListener('click', async function() {
+            const exportBtn = this;
+            const originalText = exportBtn.innerHTML;
+            exportBtn.innerHTML = '<span class="spinner-border spinner-border-custom me-2"></span> Exporting...';
+            exportBtn.disabled = true;
+
+            try {
+                const { jsPDF } = window.jspdf;
+                
+                // Determine page size based on orientation
+                let pageWidth, pageHeight;
+                if (bookData.orientation === 'landscape') {
+                    pageWidth = 297;
+                    pageHeight = 210;
+                } else if (bookData.orientation === 'portrait') {
+                    pageWidth = 210;
+                    pageHeight = 297;
+                } else {
+                    pageWidth = 210;
+                    pageHeight = 210;
+                }
+
+                const pdf = new jsPDF({
+                    orientation: bookData.orientation === 'landscape' ? 'l' : 'p',
+                    unit: 'mm',
+                    format: [pageWidth, pageHeight]
+                });
+
+                // Store current page
+                const originalPageIndex = currentPageIndex;
+
+                // Render each page
+                for (let i = 0; i < bookData.numPages; i++) {
+                    currentPageIndex = i;
+                    renderCurrentPage();
+
+                    // Wait for images to load
+                    await new Promise(resolve => setTimeout(resolve, 500));
+
+                    // Capture page as image
+                    const canvas = await html2canvas(document.getElementById('pageCanvas'), {
+                        scale: 2,
+                        useCORS: true,
+                        logging: false,
+                        backgroundColor: bookData.pages[i].backgroundColor
+                    });
+
+                    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                    
+                    if (i > 0) {
+                        pdf.addPage();
+                    }
+                    
+                    pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
+                }
+
+                // Restore original page
+                currentPageIndex = originalPageIndex;
+                renderCurrentPage();
+
+                // Save PDF
+                pdf.save('my-photobook.pdf');
+
+                alert('Your photo book has been exported successfully!');
+            } catch (error) {
+                console.error('Export error:', error);
+                alert('There was an error exporting your photo book. Please try again.');
+            } finally {
+                exportBtn.innerHTML = originalText;
+                exportBtn.disabled = false;
+            }
+        });
+
+        // Drag and drop support
+        const uploadLabel = document.querySelector('.btn-upload');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadLabel.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadLabel.addEventListener(eventName, () => {
+                uploadLabel.style.background = '#e8cba8';
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadLabel.addEventListener(eventName, () => {
+                uploadLabel.style.background = '';
+            }, false);
+        });
+
+        uploadLabel.addEventListener('drop', function(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            const event = new Event('change');
+            document.getElementById('imageUpload').files = files;
+            
+            Array.from(files).forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        bookData.pages[currentPageIndex].images.push(e.target.result);
+                        saveBookData();
+                        renderCurrentPage();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }, false);
+
+        // Initialize on page load
+        init();
+    </script>
+</body>
+</html>
