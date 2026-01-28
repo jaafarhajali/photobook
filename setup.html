@@ -128,7 +128,12 @@
                 bookData.pages.push({
                     images: [],
                     caption: '',
-                    backgroundColor: '#ffffff'
+                    backgroundColor: '#ffffff',
+                    layoutMode: 'grid',
+                    textBlocks: [],
+                    bgPattern: 'none',
+                    imageColumns: selectedLayout === 'classic' ? 1 : selectedLayout === 'modern' ? 2 : 3,
+                    imageSpacing: 20
                 });
             }
 

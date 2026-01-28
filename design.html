@@ -41,43 +41,203 @@
 
         <div class="design-workspace">
             <div class="sidebar">
-                <div class="sidebar-section">
-                    <div class="sidebar-section-title">
-                        <i class="fas fa-upload"></i> Add Photos
-                    </div>
-                    <label for="imageUpload" class="btn-upload">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <div><strong>Click to Upload</strong></div>
-                        <small>or drag and drop</small>
-                    </label>
-                    <input type="file" id="imageUpload" multiple accept="image/*" class="hidden">
-                </div>
+                <!-- Tab Navigation -->
+                <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="pills-images-tab" data-bs-toggle="pill" data-bs-target="#pills-images" type="button">
+                            <i class="fas fa-images"></i> <span class="d-none d-sm-inline">Images</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pills-text-tab" data-bs-toggle="pill" data-bs-target="#pills-text" type="button">
+                            <i class="fas fa-font"></i> <span class="d-none d-sm-inline">Text</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="pills-style-tab" data-bs-toggle="pill" data-bs-target="#pills-style" type="button">
+                            <i class="fas fa-palette"></i> <span class="d-none d-sm-inline">Style</span>
+                        </button>
+                    </li>
+                </ul>
 
-                <div class="sidebar-section">
-                    <div class="sidebar-section-title">
-                        <i class="fas fa-fill-drip"></i> Background Color
-                    </div>
-                    <div class="color-picker-container">
-                        <input type="color" id="bgColor" class="color-picker" value="#ffffff">
-                        <span id="colorValue">#ffffff</span>
-                    </div>
-                </div>
+                <!-- Tab Content -->
+                <div class="tab-content" id="pills-tabContent">
+                    <!-- Images Tab -->
+                    <div class="tab-pane fade show active" id="pills-images" role="tabpanel">
+                        <div class="sidebar-section">
+                            <div class="sidebar-section-title">
+                                <i class="fas fa-upload"></i> Upload Photos
+                            </div>
+                            <label for="imageUpload" class="btn-upload">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <div><strong>Click to Upload</strong></div>
+                                <small>or drag and drop</small>
+                            </label>
+                            <input type="file" id="imageUpload" multiple accept="image/*" class="hidden">
+                        </div>
 
-                <div class="sidebar-section">
-                    <div class="sidebar-section-title">
-                        <i class="fas fa-text-height"></i> Add Caption
+                        <div class="sidebar-section">
+                            <div class="sidebar-section-title">
+                                <i class="fas fa-sliders-h"></i> Layout Mode
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small">Positioning</label>
+                                <select class="form-select form-select-sm" id="layoutMode">
+                                    <option value="grid">Grid Layout</option>
+                                    <option value="free">Free Positioning</option>
+                                </select>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-info-circle"></i> Free mode allows drag & drop
+                                </small>
+                            </div>
+                            <div id="gridSettings">
+                                <div class="mb-3">
+                                    <label class="form-label small">Images per row</label>
+                                    <select class="form-select form-select-sm" id="imageColumns">
+                                        <option value="1">1 Column</option>
+                                        <option value="2">2 Columns</option>
+                                        <option value="3">3 Columns</option>
+                                        <option value="4">4 Columns</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small">Image spacing</label>
+                                    <input type="range" class="form-range" id="imageSpacing" min="5" max="40" value="20">
+                                    <small class="text-muted"><span id="spacingValue">20</span>px</small>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <textarea class="form-control" id="pageCaption" rows="4" placeholder="Write a caption for this page..."></textarea>
-                </div>
 
-                <div class="sidebar-section">
-                    <div class="sidebar-section-title">
-                        <i class="fas fa-info-circle"></i> Page Info
+                    <!-- Text Tab -->
+                    <div class="tab-pane fade" id="pills-text" role="tabpanel">
+                        <div class="sidebar-section">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="sidebar-section-title mb-0">
+                                    <i class="fas fa-text-height"></i> Text Blocks
+                                </div>
+                                <button class="btn btn-sm btn-primary" id="addTextBtn">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <div id="textBlocksList"></div>
+                        </div>
+
+                        <div class="sidebar-section" id="textEditor" style="display: none;">
+                            <div class="sidebar-section-title">
+                                <i class="fas fa-edit"></i> Edit Text
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label small">Text Content</label>
+                                <textarea class="form-control" id="textContent" rows="3" placeholder="Enter your text..."></textarea>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label class="form-label small">Font Family</label>
+                                    <select class="form-select form-select-sm" id="fontFamily">
+                                        <option value="'Crimson Text', serif">Crimson Text</option>
+                                        <option value="'Montserrat', sans-serif" selected>Montserrat</option>
+                                        <option value="'Georgia', serif">Georgia</option>
+                                        <option value="'Arial', sans-serif">Arial</option>
+                                        <option value="'Times New Roman', serif">Times New Roman</option>
+                                        <option value="'Courier New', monospace">Courier New</option>
+                                        <option value="'Brush Script MT', cursive">Brush Script</option>
+                                        <option value="'Comic Sans MS', cursive">Comic Sans</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small">Font Size</label>
+                                    <input type="number" class="form-control form-control-sm" id="fontSize" min="8" max="72" value="16">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label class="form-label small">Font Weight</label>
+                                    <select class="form-select form-select-sm" id="fontWeight">
+                                        <option value="300">Light</option>
+                                        <option value="400" selected>Normal</option>
+                                        <option value="600">Semi-Bold</option>
+                                        <option value="700">Bold</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small">Text Color</label>
+                                    <input type="color" class="form-control form-control-color" id="textColor" value="#2c3e50">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small">Text Align</label>
+                                <div class="btn-group w-100" role="group">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" data-align="left">
+                                        <i class="fas fa-align-left"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm active" data-align="center">
+                                        <i class="fas fa-align-center"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" data-align="right">
+                                        <i class="fas fa-align-right"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" data-align="justify">
+                                        <i class="fas fa-align-justify"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small">Position</label>
+                                <select class="form-select form-select-sm" id="textPosition">
+                                    <option value="top">Top</option>
+                                    <option value="middle">Middle</option>
+                                    <option value="bottom" selected>Bottom</option>
+                                </select>
+                            </div>
+
+                            <button class="btn btn-danger btn-sm w-100" id="deleteTextBtn">
+                                <i class="fas fa-trash"></i> Delete Text Block
+                            </button>
+                        </div>
                     </div>
-                    <div class="text-muted">
-                        <small><strong>Total Pages:</strong> <span id="totalPages">0</span></small><br>
-                        <small><strong>Layout:</strong> <span id="currentLayout">Classic</span></small><br>
-                        <small><strong>Orientation:</strong> <span id="currentOrientation">Landscape</span></small>
+
+                    <!-- Style Tab -->
+                    <div class="tab-pane fade" id="pills-style" role="tabpanel">
+                        <div class="sidebar-section">
+                            <div class="sidebar-section-title">
+                                <i class="fas fa-fill-drip"></i> Background
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small">Background Color</label>
+                                <div class="color-picker-container">
+                                    <input type="color" id="bgColor" class="color-picker" value="#ffffff">
+                                    <span id="colorValue">#ffffff</span>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small">Background Pattern</label>
+                                <select class="form-select form-select-sm" id="bgPattern">
+                                    <option value="none">None</option>
+                                    <option value="dots">Dots</option>
+                                    <option value="lines">Lines</option>
+                                    <option value="grid">Grid</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="sidebar-section">
+                            <div class="sidebar-section-title">
+                                <i class="fas fa-info-circle"></i> Page Info
+                            </div>
+                            <div class="text-muted small">
+                                <div class="mb-2"><strong>Total Pages:</strong> <span id="totalPages">0</span></div>
+                                <div class="mb-2"><strong>Layout:</strong> <span id="currentLayout">Classic</span></div>
+                                <div class="mb-2"><strong>Orientation:</strong> <span id="currentOrientation">Landscape</span></div>
+                                <div class="mb-2"><strong>Images:</strong> <span id="imageCount">0</span></div>
+                                <div><strong>Text Blocks:</strong> <span id="textCount">0</span></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -115,11 +275,20 @@
         // Load book data from localStorage
         let bookData = JSON.parse(localStorage.getItem('bookData'));
         let currentPageIndex = parseInt(localStorage.getItem('currentPageIndex')) || 0;
+        let selectedTextBlockIndex = null;
 
         // Redirect to setup if no data
         if (!bookData) {
             window.location.href = 'setup.html';
         }
+
+        // Ensure pages have textBlocks array
+        bookData.pages.forEach(page => {
+            if (!page.textBlocks) page.textBlocks = [];
+            if (!page.imageColumns) page.imageColumns = bookData.layout === 'classic' ? 1 : bookData.layout === 'modern' ? 2 : 3;
+            if (!page.imageSpacing) page.imageSpacing = 20;
+            if (!page.bgPattern) page.bgPattern = 'none';
+        });
 
         // Initialize page
         function init() {
@@ -128,12 +297,117 @@
             document.getElementById('currentOrientation').textContent = bookData.orientation.charAt(0).toUpperCase() + bookData.orientation.slice(1);
             document.getElementById('totalPagesIndicator').textContent = bookData.numPages;
             
+            setupEventListeners();
             renderCurrentPage();
             updateNavigationButtons();
         }
 
+        // Setup event listeners
+        function setupEventListeners() {
+            // Image upload
+            document.getElementById('imageUpload').addEventListener('change', handleImageUpload);
+            
+            // Image settings
+            document.getElementById('imageColumns').addEventListener('change', function() {
+                bookData.pages[currentPageIndex].imageColumns = parseInt(this.value);
+                saveBookData();
+                renderCurrentPage();
+            });
+            
+            document.getElementById('imageSpacing').addEventListener('input', function() {
+                bookData.pages[currentPageIndex].imageSpacing = parseInt(this.value);
+                document.getElementById('spacingValue').textContent = this.value;
+                saveBookData();
+                renderCurrentPage();
+            });
+            
+            // Layout mode
+            document.getElementById('layoutMode').addEventListener('change', function() {
+                const newMode = this.value;
+                const page = bookData.pages[currentPageIndex];
+                page.layoutMode = newMode;
+                
+                // Convert images to appropriate format
+                if (newMode === 'free') {
+                    page.images = page.images.map((img, i) => {
+                        if (typeof img === 'string') {
+                            return {
+                                src: img,
+                                x: 20 + (i % 3) * 250,
+                                y: 20 + Math.floor(i / 3) * 250,
+                                width: 220,
+                                height: 220
+                            };
+                        }
+                        return img;
+                    });
+                    
+                    // Add position/size to text blocks
+                    if (page.textBlocks) {
+                        page.textBlocks.forEach((block, i) => {
+                            if (!block.x) block.x = 20;
+                            if (!block.y) block.y = 500 + (i * 80);
+                            if (!block.width) block.width = 300;
+                        });
+                    }
+                } else {
+                    // Convert back to simple strings for grid mode
+                    page.images = page.images.map(img => 
+                        typeof img === 'string' ? img : img.src
+                    );
+                }
+                
+                saveBookData();
+                renderCurrentPage();
+            });
+
+            // Background controls
+            document.getElementById('bgColor').addEventListener('change', function() {
+                bookData.pages[currentPageIndex].backgroundColor = this.value;
+                document.getElementById('colorValue').textContent = this.value;
+                saveBookData();
+                renderCurrentPage();
+            });
+
+            document.getElementById('bgPattern').addEventListener('change', function() {
+                bookData.pages[currentPageIndex].bgPattern = this.value;
+                saveBookData();
+                renderCurrentPage();
+            });
+
+            // Add text block
+            document.getElementById('addTextBtn').addEventListener('click', addTextBlock);
+            
+            // Delete text block
+            document.getElementById('deleteTextBtn').addEventListener('click', deleteTextBlock);
+
+            // Text editing
+            document.getElementById('textContent').addEventListener('input', updateTextBlock);
+            document.getElementById('fontFamily').addEventListener('change', updateTextBlock);
+            document.getElementById('fontSize').addEventListener('input', updateTextBlock);
+            document.getElementById('fontWeight').addEventListener('change', updateTextBlock);
+            document.getElementById('textColor').addEventListener('input', updateTextBlock);
+            document.getElementById('textPosition').addEventListener('change', updateTextBlock);
+
+            // Text alignment buttons
+            document.querySelectorAll('[data-align]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('[data-align]').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    updateTextBlock();
+                });
+            });
+
+            // Navigation
+            document.getElementById('prevBtn').addEventListener('click', previousPage);
+            document.getElementById('nextBtn').addEventListener('click', nextPage);
+            
+            // Export
+            document.getElementById('exportBtn').addEventListener('click', exportToPDF);
+        }
+
         // Handle image upload
-        document.getElementById('imageUpload').addEventListener('change', function(event) {
+        function handleImageUpload(event) {
             const files = Array.from(event.target.files);
             
             files.forEach(file => {
@@ -149,7 +423,7 @@
             });
             
             event.target.value = '';
-        });
+        }
 
         // Delete image
         function deleteImage(imageIndex) {
@@ -158,22 +432,99 @@
             renderCurrentPage();
         }
 
-        // Update page background
-        document.getElementById('bgColor').addEventListener('change', function() {
-            const color = this.value;
-            bookData.pages[currentPageIndex].backgroundColor = color;
-            document.getElementById('colorValue').textContent = color;
+        // Add text block
+        function addTextBlock() {
+            const textBlock = {
+                content: 'New text block',
+                fontFamily: "'Montserrat', sans-serif",
+                fontSize: 16,
+                fontWeight: 400,
+                color: '#2c3e50',
+                align: 'center',
+                position: 'bottom'
+            };
+            
+            bookData.pages[currentPageIndex].textBlocks.push(textBlock);
             saveBookData();
+            renderTextBlocksList();
+            selectTextBlock(bookData.pages[currentPageIndex].textBlocks.length - 1);
             renderCurrentPage();
-        });
+        }
 
-        // Update page caption
-        document.getElementById('pageCaption').addEventListener('change', function() {
-            const caption = this.value;
-            bookData.pages[currentPageIndex].caption = caption;
+        // Delete text block
+        function deleteTextBlock() {
+            if (selectedTextBlockIndex !== null) {
+                bookData.pages[currentPageIndex].textBlocks.splice(selectedTextBlockIndex, 1);
+                selectedTextBlockIndex = null;
+                document.getElementById('textEditor').style.display = 'none';
+                saveBookData();
+                renderTextBlocksList();
+                renderCurrentPage();
+            }
+        }
+
+        // Update text block
+        function updateTextBlock() {
+            if (selectedTextBlockIndex === null) return;
+            
+            const textBlock = bookData.pages[currentPageIndex].textBlocks[selectedTextBlockIndex];
+            textBlock.content = document.getElementById('textContent').value;
+            textBlock.fontFamily = document.getElementById('fontFamily').value;
+            textBlock.fontSize = parseInt(document.getElementById('fontSize').value);
+            textBlock.fontWeight = parseInt(document.getElementById('fontWeight').value);
+            textBlock.color = document.getElementById('textColor').value;
+            textBlock.position = document.getElementById('textPosition').value;
+            
+            const activeAlignBtn = document.querySelector('[data-align].active');
+            textBlock.align = activeAlignBtn ? activeAlignBtn.dataset.align : 'center';
+            
             saveBookData();
             renderCurrentPage();
-        });
+            renderTextBlocksList();
+        }
+
+        // Select text block
+        function selectTextBlock(index) {
+            selectedTextBlockIndex = index;
+            const textBlock = bookData.pages[currentPageIndex].textBlocks[index];
+            
+            // Show editor
+            document.getElementById('textEditor').style.display = 'block';
+            
+            // Populate editor
+            document.getElementById('textContent').value = textBlock.content;
+            document.getElementById('fontFamily').value = textBlock.fontFamily;
+            document.getElementById('fontSize').value = textBlock.fontSize;
+            document.getElementById('fontWeight').value = textBlock.fontWeight;
+            document.getElementById('textColor').value = textBlock.color;
+            document.getElementById('textPosition').value = textBlock.position;
+            
+            // Set alignment
+            document.querySelectorAll('[data-align]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.align === textBlock.align);
+            });
+            
+            renderTextBlocksList();
+        }
+
+        // Render text blocks list
+        function renderTextBlocksList() {
+            const list = document.getElementById('textBlocksList');
+            const textBlocks = bookData.pages[currentPageIndex].textBlocks;
+            
+            if (textBlocks.length === 0) {
+                list.innerHTML = '<p class="text-muted small text-center">No text blocks yet. Click + to add one.</p>';
+                return;
+            }
+            
+            list.innerHTML = textBlocks.map((block, index) => `
+                <div class="text-block-item ${index === selectedTextBlockIndex ? 'active' : ''}" 
+                     onclick="selectTextBlock(${index})">
+                    <div class="text-block-preview">${block.content || 'Empty text'}</div>
+                    <i class="fas fa-grip-vertical text-block-handle"></i>
+                </div>
+            `).join('');
+        }
 
         // Render current page
         function renderCurrentPage() {
@@ -182,62 +533,173 @@
             const imageContainer = document.getElementById('imageContainer');
             const textContainer = document.getElementById('textContainer');
             
-            // Update canvas orientation
+            const isFreeMode = page.layoutMode === 'free';
+            
+            // Update canvas
             canvas.className = `page-canvas ${bookData.orientation}`;
+            if (isFreeMode) {
+                canvas.classList.add('free-layout');
+            }
             canvas.style.backgroundColor = page.backgroundColor;
             
-            // Update image grid layout
-            imageContainer.className = `image-grid ${bookData.layout}`;
+            // Apply pattern
+            canvas.classList.remove('bg-pattern-dots', 'bg-pattern-lines', 'bg-pattern-grid');
+            if (page.bgPattern && page.bgPattern !== 'none') {
+                canvas.classList.add(`bg-pattern-${page.bgPattern}`);
+            }
+            
+            // Update image grid
+            imageContainer.className = `image-grid ${isFreeMode ? 'free' : bookData.layout}`;
+            
+            if (!isFreeMode) {
+                const columns = page.imageColumns || 1;
+                imageContainer.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+                imageContainer.style.gap = `${page.imageSpacing}px`;
+            }
             
             // Render images
             imageContainer.innerHTML = '';
-            page.images.forEach((imageSrc, index) => {
+            page.images.forEach((imageData, index) => {
                 const imgDiv = document.createElement('div');
                 imgDiv.className = 'uploaded-image';
-                imgDiv.innerHTML = `
-                    <img src="${imageSrc}" alt="Photo ${index + 1}">
-                    <button class="delete-image" onclick="deleteImage(${index})">
-                        <i class="fas fa-times"></i>
-                    </button>
-                `;
+                
+                if (isFreeMode) {
+                    imgDiv.classList.add('free-positioned');
+                    const imgObj = typeof imageData === 'string' ? {
+                        src: imageData,
+                        x: 20 + (index % 3) * 250,
+                        y: 20 + Math.floor(index / 3) * 250,
+                        width: 220,
+                        height: 220
+                    } : imageData;
+                    
+                    imgDiv.style.left = imgObj.x + 'px';
+                    imgDiv.style.top = imgObj.y + 'px';
+                    imgDiv.style.width = imgObj.width + 'px';
+                    imgDiv.style.height = imgObj.height + 'px';
+                    imgDiv.dataset.index = index;
+                    
+                    imgDiv.innerHTML = `
+                        <img src="${imgObj.src}" alt="Photo ${index + 1}">
+                        <button class="delete-image" onclick="event.stopPropagation(); deleteImage(${index})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="resize-handle nw"></div>
+                        <div class="resize-handle ne"></div>
+                        <div class="resize-handle sw"></div>
+                        <div class="resize-handle se"></div>
+                    `;
+                    
+                    makeDraggable(imgDiv, index, 'image');
+                    makeResizable(imgDiv, index, 'image');
+                } else {
+                    const src = typeof imageData === 'string' ? imageData : imageData.src;
+                    imgDiv.innerHTML = `
+                        <img src="${src}" alt="Photo ${index + 1}">
+                        <button class="delete-image" onclick="deleteImage(${index})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                }
+                
                 imageContainer.appendChild(imgDiv);
             });
             
-            // Render caption
-            if (page.caption) {
-                textContainer.innerHTML = `<div class="page-text">${page.caption}</div>`;
-            } else {
-                textContainer.innerHTML = '';
+            // Render text blocks
+            textContainer.innerHTML = '';
+            if (page.textBlocks && page.textBlocks.length > 0) {
+                page.textBlocks.forEach((block, index) => {
+                    const textDiv = document.createElement('div');
+                    textDiv.className = `page-text-element`;
+                    
+                    if (isFreeMode) {
+                        textDiv.classList.add('free-positioned');
+                        textDiv.style.left = (block.x || 20) + 'px';
+                        textDiv.style.top = (block.y || 500 + (index * 80)) + 'px';
+                        textDiv.style.width = (block.width || 300) + 'px';
+                        textDiv.dataset.index = index;
+                        
+                        textDiv.innerHTML = `
+                            ${block.content}
+                            <div class="resize-handle nw"></div>
+                            <div class="resize-handle ne"></div>
+                            <div class="resize-handle sw"></div>
+                            <div class="resize-handle se"></div>
+                        `;
+                        
+                        makeDraggable(textDiv, index, 'text');
+                        makeResizable(textDiv, index, 'text');
+                    } else {
+                        textDiv.classList.add(`text-position-${block.position}`);
+                        textDiv.textContent = block.content;
+                    }
+                    
+                    textDiv.style.fontFamily = block.fontFamily;
+                    textDiv.style.fontSize = `${block.fontSize}px`;
+                    textDiv.style.fontWeight = block.fontWeight;
+                    textDiv.style.color = block.color;
+                    textDiv.style.textAlign = block.align;
+                    
+                    textDiv.onclick = (e) => {
+                        if (e.target === textDiv || e.target.classList.contains('resize-handle')) {
+                            if (!isFreeMode || e.target === textDiv) {
+                                selectTextBlock(index);
+                                // Switch to text tab
+                                document.getElementById('pills-text-tab').click();
+                            }
+                        }
+                    };
+                    
+                    textContainer.appendChild(textDiv);
+                });
             }
             
-            // Update page number
+            // Update page info
             document.getElementById('currentPageNumber').textContent = currentPageIndex + 1;
             document.getElementById('pageIndicator').textContent = currentPageIndex + 1;
+            document.getElementById('imageCount').textContent = page.images.length;
+            document.getElementById('textCount').textContent = page.textBlocks ? page.textBlocks.length : 0;
             
-            // Update caption input
-            document.getElementById('pageCaption').value = page.caption;
+            // Update controls
             document.getElementById('bgColor').value = page.backgroundColor;
             document.getElementById('colorValue').textContent = page.backgroundColor;
+            document.getElementById('layoutMode').value = page.layoutMode || 'grid';
+            document.getElementById('imageColumns').value = page.imageColumns || 1;
+            document.getElementById('imageSpacing').value = page.imageSpacing || 20;
+            document.getElementById('spacingValue').textContent = page.imageSpacing || 20;
+            document.getElementById('bgPattern').value = page.bgPattern || 'none';
+            
+            // Show/hide grid settings
+            document.getElementById('gridSettings').style.display = isFreeMode ? 'none' : 'block';
+            
+            // Show/hide free mode indicator
+            document.getElementById('freeModeIndicator').style.display = isFreeMode ? 'block' : 'none';
+            
+            renderTextBlocksList();
         }
 
         // Navigation
-        document.getElementById('prevBtn').addEventListener('click', function() {
+        function previousPage() {
             if (currentPageIndex > 0) {
                 currentPageIndex--;
+                selectedTextBlockIndex = null;
+                document.getElementById('textEditor').style.display = 'none';
                 saveCurrentPageIndex();
                 renderCurrentPage();
                 updateNavigationButtons();
             }
-        });
+        }
 
-        document.getElementById('nextBtn').addEventListener('click', function() {
+        function nextPage() {
             if (currentPageIndex < bookData.numPages - 1) {
                 currentPageIndex++;
+                selectedTextBlockIndex = null;
+                document.getElementById('textEditor').style.display = 'none';
                 saveCurrentPageIndex();
                 renderCurrentPage();
                 updateNavigationButtons();
             }
-        });
+        }
 
         function updateNavigationButtons() {
             document.getElementById('prevBtn').disabled = currentPageIndex === 0;
@@ -254,8 +716,8 @@
         }
 
         // Export to PDF
-        document.getElementById('exportBtn').addEventListener('click', async function() {
-            const exportBtn = this;
+        async function exportToPDF() {
+            const exportBtn = document.getElementById('exportBtn');
             const originalText = exportBtn.innerHTML;
             exportBtn.innerHTML = '<span class="spinner-border spinner-border-custom me-2"></span> Exporting...';
             exportBtn.disabled = true;
@@ -263,7 +725,6 @@
             try {
                 const { jsPDF } = window.jspdf;
                 
-                // Determine page size based on orientation
                 let pageWidth, pageHeight;
                 if (bookData.orientation === 'landscape') {
                     pageWidth = 297;
@@ -282,18 +743,13 @@
                     format: [pageWidth, pageHeight]
                 });
 
-                // Store current page
                 const originalPageIndex = currentPageIndex;
 
-                // Render each page
                 for (let i = 0; i < bookData.numPages; i++) {
                     currentPageIndex = i;
                     renderCurrentPage();
-
-                    // Wait for images to load
                     await new Promise(resolve => setTimeout(resolve, 500));
 
-                    // Capture page as image
                     const canvas = await html2canvas(document.getElementById('pageCanvas'), {
                         scale: 2,
                         useCORS: true,
@@ -303,20 +759,13 @@
 
                     const imgData = canvas.toDataURL('image/jpeg', 0.95);
                     
-                    if (i > 0) {
-                        pdf.addPage();
-                    }
-                    
+                    if (i > 0) pdf.addPage();
                     pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
                 }
 
-                // Restore original page
                 currentPageIndex = originalPageIndex;
                 renderCurrentPage();
-
-                // Save PDF
                 pdf.save('my-photobook.pdf');
-
                 alert('Your photo book has been exported successfully!');
             } catch (error) {
                 console.error('Export error:', error);
@@ -325,19 +774,17 @@
                 exportBtn.innerHTML = originalText;
                 exportBtn.disabled = false;
             }
-        });
+        }
 
         // Drag and drop support
         const uploadLabel = document.querySelector('.btn-upload');
         
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            uploadLabel.addEventListener(eventName, preventDefaults, false);
+            uploadLabel.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            }, false);
         });
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
 
         ['dragenter', 'dragover'].forEach(eventName => {
             uploadLabel.addEventListener(eventName, () => {
@@ -352,23 +799,150 @@
         });
 
         uploadLabel.addEventListener('drop', function(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            const event = new Event('change');
-            document.getElementById('imageUpload').files = files;
-            
-            Array.from(files).forEach(file => {
-                if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        bookData.pages[currentPageIndex].images.push(e.target.result);
-                        saveBookData();
-                        renderCurrentPage();
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
+            const files = e.dataTransfer.files;
+            handleImageUpload({ target: { files: files } });
         }, false);
+
+        // Drag and resize functionality for free positioning
+        let draggedElement = null;
+        let dragType = null;
+        let dragIndex = null;
+        let startX = 0;
+        let startY = 0;
+        let startLeft = 0;
+        let startTop = 0;
+        let resizing = false;
+        let resizeCorner = '';
+        let startWidth = 0;
+        let startHeight = 0;
+
+        function makeDraggable(element, index, type) {
+            element.addEventListener('mousedown', function(e) {
+                if (e.target.classList.contains('resize-handle')) return;
+                if (e.target.classList.contains('delete-image')) return;
+                
+                draggedElement = element;
+                dragType = type;
+                dragIndex = index;
+                
+                // Add selected class
+                document.querySelectorAll('.free-positioned').forEach(el => el.classList.remove('selected'));
+                element.classList.add('selected');
+                
+                const rect = element.getBoundingClientRect();
+                const parentRect = element.parentElement.getBoundingClientRect();
+                
+                startX = e.clientX;
+                startY = e.clientY;
+                startLeft = rect.left - parentRect.left;
+                startTop = rect.top - parentRect.top;
+                
+                e.preventDefault();
+            });
+        }
+
+        function makeResizable(element, index, type) {
+            const handles = element.querySelectorAll('.resize-handle');
+            handles.forEach(handle => {
+                handle.addEventListener('mousedown', function(e) {
+                    e.stopPropagation();
+                    
+                    draggedElement = element;
+                    dragType = type;
+                    dragIndex = index;
+                    resizing = true;
+                    resizeCorner = this.classList.contains('nw') ? 'nw' :
+                                  this.classList.contains('ne') ? 'ne' :
+                                  this.classList.contains('sw') ? 'sw' : 'se';
+                    
+                    // Add selected class
+                    document.querySelectorAll('.free-positioned').forEach(el => el.classList.remove('selected'));
+                    element.classList.add('selected');
+                    
+                    const rect = element.getBoundingClientRect();
+                    const parentRect = element.parentElement.getBoundingClientRect();
+                    
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    startLeft = rect.left - parentRect.left;
+                    startTop = rect.top - parentRect.top;
+                    startWidth = rect.width;
+                    startHeight = rect.height;
+                    
+                    e.preventDefault();
+                });
+            });
+        }
+
+        document.addEventListener('mousemove', function(e) {
+            if (!draggedElement) return;
+            
+            const deltaX = e.clientX - startX;
+            const deltaY = e.clientY - startY;
+            
+            if (resizing) {
+                let newWidth = startWidth;
+                let newHeight = startHeight;
+                let newLeft = startLeft;
+                let newTop = startTop;
+                
+                if (resizeCorner.includes('e')) {
+                    newWidth = startWidth + deltaX;
+                } else if (resizeCorner.includes('w')) {
+                    newWidth = startWidth - deltaX;
+                    newLeft = startLeft + deltaX;
+                }
+                
+                if (resizeCorner.includes('s')) {
+                    newHeight = startHeight + deltaY;
+                } else if (resizeCorner.includes('n')) {
+                    newHeight = startHeight - deltaY;
+                    newTop = startTop + deltaY;
+                }
+                
+                // Enforce minimum size
+                if (newWidth >= 50 && newHeight >= 50) {
+                    draggedElement.style.width = newWidth + 'px';
+                    draggedElement.style.height = newHeight + 'px';
+                    draggedElement.style.left = newLeft + 'px';
+                    draggedElement.style.top = newTop + 'px';
+                }
+            } else {
+                // Dragging
+                draggedElement.style.left = (startLeft + deltaX) + 'px';
+                draggedElement.style.top = (startTop + deltaY) + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', function(e) {
+            if (draggedElement && dragIndex !== null) {
+                const page = bookData.pages[currentPageIndex];
+                
+                if (dragType === 'image') {
+                    const imgData = page.images[dragIndex];
+                    imgData.x = parseInt(draggedElement.style.left);
+                    imgData.y = parseInt(draggedElement.style.top);
+                    imgData.width = parseInt(draggedElement.style.width);
+                    imgData.height = parseInt(draggedElement.style.height);
+                } else if (dragType === 'text') {
+                    const textBlock = page.textBlocks[dragIndex];
+                    textBlock.x = parseInt(draggedElement.style.left);
+                    textBlock.y = parseInt(draggedElement.style.top);
+                    textBlock.width = parseInt(draggedElement.style.width);
+                    if (draggedElement.style.height) {
+                        textBlock.height = parseInt(draggedElement.style.height);
+                    }
+                }
+                
+                saveBookData();
+            }
+            
+            draggedElement = null;
+            dragType = null;
+            dragIndex = null;
+            resizing = false;
+            resizeCorner = '';
+        });
 
         // Initialize on page load
         init();
