@@ -4,25 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Photo Book Designer - Design</title>
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600;700&family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
+
+    <!-- Google Fonts - Extended -->
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600;700&family=Montserrat:wght@300;400;600;700&family=Roboto:wght@300;400;700&family=Open+Sans:wght@300;400;700&family=Lato:wght@300;400;700&family=Playfair+Display:wght@400;700&family=Merriweather:wght@300;400;700&family=Raleway:wght@300;400;700&family=Oswald:wght@300;400;700&family=Dancing+Script:wght@400;700&family=Pacifico&family=Great+Vibes&display=swap" rel="stylesheet">
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading Photo Book Designer...</div>
+        <div class="loading-progress">
+            <div class="loading-progress-bar"></div>
+        </div>
+    </div>
+
+    <!-- Keyboard Shortcuts Hint -->
+    <div id="keyboardHint" class="keyboard-hint">
+        Press <kbd>?</kbd> for keyboard shortcuts
+    </div>
 
     <!-- Design Screen -->
     <div id="designScreen" class="design-screen">
         <div class="design-header">
-            <div class="container">
+            <div class="container-fluid px-4">
                 <div class="design-header-content">
                     <h2 class="design-title">
                         <i class="fas fa-book-open me-2"></i> My Photo Book
@@ -40,12 +53,29 @@
         </div>
 
         <div class="design-workspace">
+            <!-- Left Sidebar -->
             <div class="sidebar">
+                <!-- Photo Library Section -->
+                <div class="sidebar-section photo-library-section">
+                    <div class="sidebar-section-title">
+                        <i class="fas fa-images"></i> Photo Library
+                        <span class="badge bg-secondary ms-auto" id="libraryPhotoCount">0</span>
+                    </div>
+                    <label for="libraryUpload" class="btn-upload compact">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span>Upload Photos</span>
+                    </label>
+                    <input type="file" id="libraryUpload" multiple accept="image/*" class="hidden">
+                    <div class="photo-library-grid" id="photoLibraryGrid">
+                        <p class="text-muted small text-center py-3">No photos yet. Upload some photos to get started.</p>
+                    </div>
+                </div>
+
                 <!-- Tab Navigation -->
                 <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="pills-images-tab" data-bs-toggle="pill" data-bs-target="#pills-images" type="button">
-                            <i class="fas fa-images"></i> <span class="d-none d-sm-inline">Images</span>
+                        <button class="nav-link active" id="pills-layout-tab" data-bs-toggle="pill" data-bs-target="#pills-layout" type="button">
+                            <i class="fas fa-th-large"></i> <span class="d-none d-sm-inline">Layout</span>
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
@@ -62,48 +92,74 @@
 
                 <!-- Tab Content -->
                 <div class="tab-content" id="pills-tabContent">
-                    <!-- Images Tab -->
-                    <div class="tab-pane fade show active" id="pills-images" role="tabpanel">
-                        <div class="sidebar-section">
-                            <div class="sidebar-section-title">
-                                <i class="fas fa-upload"></i> Upload Photos
-                            </div>
-                            <label for="imageUpload" class="btn-upload">
-                                <i class="fas fa-cloud-upload-alt"></i>
-                                <div><strong>Click to Upload</strong></div>
-                                <small>or drag and drop</small>
-                            </label>
-                            <input type="file" id="imageUpload" multiple accept="image/*" class="hidden">
-                        </div>
-
+                    <!-- Layout Tab -->
+                    <div class="tab-pane fade show active" id="pills-layout" role="tabpanel">
                         <div class="sidebar-section">
                             <div class="sidebar-section-title">
                                 <i class="fas fa-sliders-h"></i> Layout Mode
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label small">Positioning</label>
-                                <select class="form-select form-select-sm" id="layoutMode">
-                                    <option value="grid">Grid Layout</option>
-                                    <option value="free">Free Positioning</option>
-                                </select>
-                                <small class="text-muted d-block mt-2">
-                                    <i class="fas fa-info-circle"></i> Free mode allows drag & drop
-                                </small>
+                            <div class="layout-mode-toggle mb-3">
+                                <div class="btn-group w-100" role="group">
+                                    <input type="radio" class="btn-check" name="layoutMode" id="layoutModeGrid" value="grid" checked>
+                                    <label class="btn btn-outline-primary" for="layoutModeGrid">
+                                        <i class="fas fa-th-large"></i> Grid
+                                    </label>
+                                    <input type="radio" class="btn-check" name="layoutMode" id="layoutModeFree" value="free">
+                                    <label class="btn btn-outline-primary" for="layoutModeFree">
+                                        <i class="fas fa-arrows-alt"></i> Free
+                                    </label>
+                                </div>
                             </div>
+
+                            <!-- Grid Settings -->
                             <div id="gridSettings">
                                 <div class="mb-3">
-                                    <label class="form-label small">Images per row</label>
-                                    <select class="form-select form-select-sm" id="imageColumns">
-                                        <option value="1">1 Column</option>
-                                        <option value="2">2 Columns</option>
-                                        <option value="3">3 Columns</option>
-                                        <option value="4">4 Columns</option>
+                                    <label class="form-label small">Grid Template</label>
+                                    <select class="form-select form-select-sm" id="gridTemplateSelector">
+                                        <option value="1x1">Single (1×1)</option>
+                                        <option value="1x2">2 Horizontal (1×2)</option>
+                                        <option value="2x1">2 Vertical (2×1)</option>
+                                        <option value="2x2" selected>4 Grid (2×2)</option>
+                                        <option value="2x3">6 Grid (2×3)</option>
+                                        <option value="3x2">6 Grid (3×2)</option>
+                                        <option value="3x3">9 Grid (3×3)</option>
                                     </select>
                                 </div>
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <label class="form-label small">Rows</label>
+                                        <input type="number" class="form-control form-control-sm" id="gridRows" min="1" max="6" value="2">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small">Columns</label>
+                                        <input type="number" class="form-control form-control-sm" id="gridCols" min="1" max="6" value="2">
+                                    </div>
+                                </div>
                                 <div class="mb-3">
-                                    <label class="form-label small">Image spacing</label>
-                                    <input type="range" class="form-range" id="imageSpacing" min="5" max="40" value="20">
-                                    <small class="text-muted"><span id="spacingValue">20</span>px</small>
+                                    <label class="form-label small">Cell Spacing</label>
+                                    <input type="range" class="form-range" id="gridSpacing" min="0" max="50" value="20">
+                                    <small class="text-muted"><span id="gridSpacingValue">20</span>px</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small">Padding</label>
+                                    <input type="range" class="form-range" id="gridPadding" min="0" max="50" value="40">
+                                    <small class="text-muted"><span id="gridPaddingValue">40</span>px</small>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="snapToGrid" checked>
+                                    <label class="form-check-label small" for="snapToGrid">
+                                        Snap to grid
+                                    </label>
+                                </div>
+                                <button class="btn btn-sm btn-outline-secondary w-100" id="autoArrangeBtn">
+                                    <i class="fas fa-magic"></i> Auto Arrange
+                                </button>
+                            </div>
+
+                            <!-- Free Mode Settings -->
+                            <div id="freeModeSettings" style="display: none;">
+                                <div class="alert alert-info small py-2">
+                                    <i class="fas fa-info-circle"></i> Drag elements freely on the canvas. Use handles to resize and rotate.
                                 </div>
                             </div>
                         </div>
@@ -127,35 +183,44 @@
                             <div class="sidebar-section-title">
                                 <i class="fas fa-edit"></i> Edit Text
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label class="form-label small">Text Content</label>
                                 <textarea class="form-control" id="textContent" rows="3" placeholder="Enter your text..."></textarea>
                             </div>
 
+                            <!-- Formatting Buttons -->
+                            <div class="mb-3">
+                                <label class="form-label small">Formatting</label>
+                                <div class="btn-group w-100" role="group">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" id="boldBtn" title="Bold">
+                                        <i class="fas fa-bold"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" id="italicBtn" title="Italic">
+                                        <i class="fas fa-italic"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" id="underlineBtn" title="Underline">
+                                        <i class="fas fa-underline"></i>
+                                    </button>
+                                </div>
+                            </div>
+
                             <div class="row mb-3">
-                                <div class="col-6">
+                                <div class="col-7">
                                     <label class="form-label small">Font Family</label>
                                     <select class="form-select form-select-sm" id="fontFamily">
-                                        <option value="'Crimson Text', serif">Crimson Text</option>
-                                        <option value="'Montserrat', sans-serif" selected>Montserrat</option>
-                                        <option value="'Georgia', serif">Georgia</option>
-                                        <option value="'Arial', sans-serif">Arial</option>
-                                        <option value="'Times New Roman', serif">Times New Roman</option>
-                                        <option value="'Courier New', monospace">Courier New</option>
-                                        <option value="'Brush Script MT', cursive">Brush Script</option>
-                                        <option value="'Comic Sans MS', cursive">Comic Sans</option>
+                                        <!-- Populated by TextEditor module -->
                                     </select>
                                 </div>
-                                <div class="col-6">
-                                    <label class="form-label small">Font Size</label>
+                                <div class="col-5">
+                                    <label class="form-label small">Size</label>
                                     <input type="number" class="form-control form-control-sm" id="fontSize" min="8" max="72" value="16">
                                 </div>
                             </div>
 
                             <div class="row mb-3">
                                 <div class="col-6">
-                                    <label class="form-label small">Font Weight</label>
+                                    <label class="form-label small">Weight</label>
                                     <select class="form-select form-select-sm" id="fontWeight">
                                         <option value="300">Light</option>
                                         <option value="400" selected>Normal</option>
@@ -164,13 +229,13 @@
                                     </select>
                                 </div>
                                 <div class="col-6">
-                                    <label class="form-label small">Text Color</label>
-                                    <input type="color" class="form-control form-control-color" id="textColor" value="#2c3e50">
+                                    <label class="form-label small">Color</label>
+                                    <input type="color" class="form-control form-control-color w-100" id="textColor" value="#2c3e50">
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label small">Text Align</label>
+                                <label class="form-label small">Alignment</label>
                                 <div class="btn-group w-100" role="group">
                                     <button type="button" class="btn btn-outline-secondary btn-sm" data-align="left">
                                         <i class="fas fa-align-left"></i>
@@ -196,6 +261,38 @@
                                 </select>
                             </div>
 
+                            <!-- Background & Rotation (New) -->
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label class="form-label small">Background</label>
+                                    <input type="color" class="form-control form-control-color w-100" id="textBgColor" value="#ffffff">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small">Opacity</label>
+                                    <input type="range" class="form-range" id="textBgOpacity" min="0" max="1" step="0.1" value="0">
+                                    <small class="text-muted"><span id="textBgOpacityValue">0%</span></small>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small">Rotation</label>
+                                <input type="range" class="form-range" id="textRotation" min="-180" max="180" value="0">
+                                <small class="text-muted"><span id="textRotationValue">0°</span></small>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label class="form-label small">Line Height</label>
+                                    <input type="range" class="form-range" id="lineHeight" min="1" max="3" step="0.1" value="1.5">
+                                    <small class="text-muted"><span id="lineHeightValue">1.5</span></small>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small">Letter Spacing</label>
+                                    <input type="range" class="form-range" id="letterSpacing" min="-2" max="10" value="0">
+                                    <small class="text-muted"><span id="letterSpacingValue">0px</span></small>
+                                </div>
+                            </div>
+
                             <button class="btn btn-danger btn-sm w-100" id="deleteTextBtn">
                                 <i class="fas fa-trash"></i> Delete Text Block
                             </button>
@@ -206,7 +303,7 @@
                     <div class="tab-pane fade" id="pills-style" role="tabpanel">
                         <div class="sidebar-section">
                             <div class="sidebar-section-title">
-                                <i class="fas fa-fill-drip"></i> Background
+                                <i class="fas fa-fill-drip"></i> Page Background
                             </div>
                             <div class="mb-3">
                                 <label class="form-label small">Background Color</label>
@@ -228,27 +325,75 @@
 
                         <div class="sidebar-section">
                             <div class="sidebar-section-title">
-                                <i class="fas fa-info-circle"></i> Page Info
+                                <i class="fas fa-info-circle"></i> Book Info
                             </div>
                             <div class="text-muted small">
                                 <div class="mb-2"><strong>Total Pages:</strong> <span id="totalPages">0</span></div>
                                 <div class="mb-2"><strong>Layout:</strong> <span id="currentLayout">Classic</span></div>
                                 <div class="mb-2"><strong>Orientation:</strong> <span id="currentOrientation">Landscape</span></div>
-                                <div class="mb-2"><strong>Images:</strong> <span id="imageCount">0</span></div>
-                                <div><strong>Text Blocks:</strong> <span id="textCount">0</span></div>
+                                <div class="mb-2"><strong>Photos in Library:</strong> <span id="libraryCount">0</span></div>
+                                <div><strong>Elements on Page:</strong> <span id="elementCount">0</span></div>
+                            </div>
+                        </div>
+
+                        <div class="sidebar-section">
+                            <div class="sidebar-section-title">
+                                <i class="fas fa-tools"></i> Page Actions
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-sm btn-outline-primary" onclick="PageManager.duplicatePage(currentPageIndex)">
+                                    <i class="fas fa-copy me-1"></i> Duplicate Page
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning" onclick="PageManager.clearPage(currentPageIndex)">
+                                    <i class="fas fa-eraser me-1"></i> Clear Page
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <!-- Main Canvas Area -->
             <div class="canvas-area">
+                <!-- Element Toolbar -->
+                <div id="elementToolbar" class="element-toolbar">
+                    <div class="toolbar-group">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="FreeLayout.bringToFront()" title="Bring to Front">
+                            <i class="fas fa-layer-group"></i> Front
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="FreeLayout.sendToBack()" title="Send to Back">
+                            <i class="fas fa-layer-group"></i> Back
+                        </button>
+                    </div>
+                    <div class="toolbar-group">
+                        <label class="small me-2">Rotate:</label>
+                        <input type="number" class="form-control form-control-sm" id="rotationValue" style="width: 70px;" min="-180" max="180" value="0">
+                        <span class="ms-1">°</span>
+                    </div>
+                    <div class="toolbar-group">
+                        <span class="small text-muted" id="positionDisplay">X: 0 Y: 0</span>
+                        <span class="small text-muted ms-2" id="sizeDisplay">0 × 0</span>
+                    </div>
+                    <div class="toolbar-group">
+                        <button class="btn btn-sm btn-outline-danger" onclick="FreeLayout.deleteSelected()" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Page Canvas -->
                 <div id="pageCanvas" class="page-canvas landscape">
                     <div class="page-number-badge">Page <span id="currentPageNumber">1</span></div>
                     <div id="imageContainer" class="image-grid classic"></div>
                     <div id="textContainer"></div>
                 </div>
 
+                <!-- Page Thumbnail Strip -->
+                <div id="pageThumbnailStrip" class="page-thumbnail-strip">
+                    <!-- Populated by PageManager -->
+                </div>
+
+                <!-- Page Navigation (legacy, kept for compatibility) -->
                 <div class="page-navigation">
                     <button class="btn btn-nav prev" id="prevBtn" disabled>
                         <i class="fas fa-chevron-left"></i> Previous
@@ -266,10 +411,21 @@
 
     <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- jsPDF and html2canvas for PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <!-- interact.js for drag/resize/rotate -->
+    <script src="https://cdn.jsdelivr.net/npm/interactjs@1.10.17/dist/interact.min.js"></script>
+
+    <!-- Custom Modules -->
+    <script src="js/page-manager.js"></script>
+    <script src="js/photo-library.js"></script>
+    <script src="js/grid-layout.js"></script>
+    <script src="js/free-layout.js"></script>
+    <script src="js/text-editor.js"></script>
+    <script src="js/pdf-export.js"></script>
 
     <script>
         // Load book data from localStorage
@@ -282,13 +438,34 @@
             window.location.href = 'setup.html';
         }
 
-        // Ensure pages have textBlocks array
-        bookData.pages.forEach(page => {
-            if (!page.textBlocks) page.textBlocks = [];
-            if (!page.imageColumns) page.imageColumns = bookData.layout === 'classic' ? 1 : bookData.layout === 'modern' ? 2 : 3;
-            if (!page.imageSpacing) page.imageSpacing = 20;
-            if (!page.bgPattern) page.bgPattern = 'none';
-        });
+        // Migrate and ensure data structure
+        function migrateBookData() {
+            // Ensure photoLibrary exists
+            if (!bookData.photoLibrary) {
+                bookData.photoLibrary = [];
+            }
+
+            // Ensure pages have required properties
+            bookData.pages.forEach((page, index) => {
+                if (!page.id) page.id = 'page_' + index;
+                if (!page.textBlocks) page.textBlocks = [];
+                if (!page.elements) page.elements = [];
+                if (!page.images) page.images = [];
+                if (!page.imageColumns) page.imageColumns = bookData.layout === 'classic' ? 1 : bookData.layout === 'modern' ? 2 : 3;
+                if (!page.imageSpacing) page.imageSpacing = 20;
+                if (!page.bgPattern) page.bgPattern = 'none';
+                if (!page.layoutMode) page.layoutMode = 'grid';
+                if (!page.gridTemplate) page.gridTemplate = '2x2';
+                if (!page.gridRows) page.gridRows = 2;
+                if (!page.gridCols) page.gridCols = 2;
+                if (!page.gridSpacing) page.gridSpacing = 20;
+                if (!page.gridPadding) page.gridPadding = 40;
+            });
+
+            saveBookData();
+        }
+
+        migrateBookData();
 
         // Initialize page
         function init() {
@@ -296,7 +473,15 @@
             document.getElementById('currentLayout').textContent = bookData.layout.charAt(0).toUpperCase() + bookData.layout.slice(1);
             document.getElementById('currentOrientation').textContent = bookData.orientation.charAt(0).toUpperCase() + bookData.orientation.slice(1);
             document.getElementById('totalPagesIndicator').textContent = bookData.numPages;
-            
+
+            // Initialize modules
+            PageManager.init();
+            PhotoLibrary.init();
+            GridLayout.init();
+            FreeLayout.init();
+            TextEditor.init();
+            PDFExport.init();
+
             setupEventListeners();
             renderCurrentPage();
             updateNavigationButtons();
@@ -304,61 +489,55 @@
 
         // Setup event listeners
         function setupEventListeners() {
-            // Image upload
-            document.getElementById('imageUpload').addEventListener('change', handleImageUpload);
-            
-            // Image settings
-            document.getElementById('imageColumns').addEventListener('change', function() {
-                bookData.pages[currentPageIndex].imageColumns = parseInt(this.value);
-                saveBookData();
-                renderCurrentPage();
+            // Library upload
+            document.getElementById('libraryUpload').addEventListener('change', function(e) {
+                PhotoLibrary.uploadPhotos(e.target.files);
+                e.target.value = '';
             });
-            
-            document.getElementById('imageSpacing').addEventListener('input', function() {
-                bookData.pages[currentPageIndex].imageSpacing = parseInt(this.value);
-                document.getElementById('spacingValue').textContent = this.value;
-                saveBookData();
-                renderCurrentPage();
-            });
-            
-            // Layout mode
-            document.getElementById('layoutMode').addEventListener('change', function() {
-                const newMode = this.value;
-                const page = bookData.pages[currentPageIndex];
-                page.layoutMode = newMode;
-                
-                // Convert images to appropriate format
-                if (newMode === 'free') {
-                    page.images = page.images.map((img, i) => {
-                        if (typeof img === 'string') {
-                            return {
-                                src: img,
-                                x: 20 + (i % 3) * 250,
-                                y: 20 + Math.floor(i / 3) * 250,
-                                width: 220,
-                                height: 220
-                            };
-                        }
-                        return img;
-                    });
-                    
-                    // Add position/size to text blocks
-                    if (page.textBlocks) {
-                        page.textBlocks.forEach((block, i) => {
-                            if (!block.x) block.x = 20;
-                            if (!block.y) block.y = 500 + (i * 80);
-                            if (!block.width) block.width = 300;
+
+            // Layout mode toggle
+            document.querySelectorAll('input[name="layoutMode"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const newMode = this.value;
+                    const page = bookData.pages[currentPageIndex];
+                    page.layoutMode = newMode;
+
+                    // Toggle settings visibility
+                    document.getElementById('gridSettings').style.display = newMode === 'grid' ? 'block' : 'none';
+                    document.getElementById('freeModeSettings').style.display = newMode === 'free' ? 'block' : 'none';
+
+                    // Convert images to appropriate format
+                    if (newMode === 'free') {
+                        page.images = page.images.map((img, i) => {
+                            if (typeof img === 'string') {
+                                return {
+                                    src: img,
+                                    x: 20 + (i % 3) * 250,
+                                    y: 20 + Math.floor(i / 3) * 250,
+                                    width: 220,
+                                    height: 220,
+                                    rotation: 0,
+                                    zIndex: i + 1
+                                };
+                            }
+                            return img;
                         });
+
+                        // Add position/size to text blocks
+                        if (page.textBlocks) {
+                            page.textBlocks.forEach((block, i) => {
+                                if (!block.x) block.x = 20;
+                                if (!block.y) block.y = 500 + (i * 80);
+                                if (!block.width) block.width = 300;
+                                if (!block.rotation) block.rotation = 0;
+                            });
+                        }
                     }
-                } else {
-                    // Convert back to simple strings for grid mode
-                    page.images = page.images.map(img => 
-                        typeof img === 'string' ? img : img.src
-                    );
-                }
-                
-                saveBookData();
-                renderCurrentPage();
+
+                    saveBookData();
+                    renderCurrentPage();
+                    PageManager.renderThumbnailStrip();
+                });
             });
 
             // Background controls
@@ -367,6 +546,7 @@
                 document.getElementById('colorValue').textContent = this.value;
                 saveBookData();
                 renderCurrentPage();
+                PageManager.renderThumbnailStrip();
             });
 
             document.getElementById('bgPattern').addEventListener('change', function() {
@@ -375,155 +555,51 @@
                 renderCurrentPage();
             });
 
-            // Add text block
-            document.getElementById('addTextBtn').addEventListener('click', addTextBlock);
-            
-            // Delete text block
-            document.getElementById('deleteTextBtn').addEventListener('click', deleteTextBlock);
+            // Auto arrange button
+            document.getElementById('autoArrangeBtn').addEventListener('click', function() {
+                GridLayout.autoArrangeImages();
+            });
 
-            // Text editing
-            document.getElementById('textContent').addEventListener('input', updateTextBlock);
-            document.getElementById('fontFamily').addEventListener('change', updateTextBlock);
-            document.getElementById('fontSize').addEventListener('input', updateTextBlock);
-            document.getElementById('fontWeight').addEventListener('change', updateTextBlock);
-            document.getElementById('textColor').addEventListener('input', updateTextBlock);
-            document.getElementById('textPosition').addEventListener('change', updateTextBlock);
-
-            // Text alignment buttons
-            document.querySelectorAll('[data-align]').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('[data-align]').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    updateTextBlock();
-                });
+            // Rotation value input
+            document.getElementById('rotationValue').addEventListener('change', function() {
+                FreeLayout.setRotation(parseInt(this.value) || 0);
             });
 
             // Navigation
             document.getElementById('prevBtn').addEventListener('click', previousPage);
             document.getElementById('nextBtn').addEventListener('click', nextPage);
-            
-            // Export
-            document.getElementById('exportBtn').addEventListener('click', exportToPDF);
+
+            // Drag and drop on upload area
+            setupDragDrop();
         }
 
-        // Handle image upload
-        function handleImageUpload(event) {
-            const files = Array.from(event.target.files);
-            
-            files.forEach(file => {
-                if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        bookData.pages[currentPageIndex].images.push(e.target.result);
-                        saveBookData();
-                        renderCurrentPage();
-                    };
-                    reader.readAsDataURL(file);
-                }
+        // Setup drag and drop for library upload
+        function setupDragDrop() {
+            const uploadLabel = document.querySelector('.btn-upload');
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadLabel.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, false);
             });
-            
-            event.target.value = '';
-        }
 
-        // Delete image
-        function deleteImage(imageIndex) {
-            bookData.pages[currentPageIndex].images.splice(imageIndex, 1);
-            saveBookData();
-            renderCurrentPage();
-        }
-
-        // Add text block
-        function addTextBlock() {
-            const textBlock = {
-                content: 'New text block',
-                fontFamily: "'Montserrat', sans-serif",
-                fontSize: 16,
-                fontWeight: 400,
-                color: '#2c3e50',
-                align: 'center',
-                position: 'bottom'
-            };
-            
-            bookData.pages[currentPageIndex].textBlocks.push(textBlock);
-            saveBookData();
-            renderTextBlocksList();
-            selectTextBlock(bookData.pages[currentPageIndex].textBlocks.length - 1);
-            renderCurrentPage();
-        }
-
-        // Delete text block
-        function deleteTextBlock() {
-            if (selectedTextBlockIndex !== null) {
-                bookData.pages[currentPageIndex].textBlocks.splice(selectedTextBlockIndex, 1);
-                selectedTextBlockIndex = null;
-                document.getElementById('textEditor').style.display = 'none';
-                saveBookData();
-                renderTextBlocksList();
-                renderCurrentPage();
-            }
-        }
-
-        // Update text block
-        function updateTextBlock() {
-            if (selectedTextBlockIndex === null) return;
-            
-            const textBlock = bookData.pages[currentPageIndex].textBlocks[selectedTextBlockIndex];
-            textBlock.content = document.getElementById('textContent').value;
-            textBlock.fontFamily = document.getElementById('fontFamily').value;
-            textBlock.fontSize = parseInt(document.getElementById('fontSize').value);
-            textBlock.fontWeight = parseInt(document.getElementById('fontWeight').value);
-            textBlock.color = document.getElementById('textColor').value;
-            textBlock.position = document.getElementById('textPosition').value;
-            
-            const activeAlignBtn = document.querySelector('[data-align].active');
-            textBlock.align = activeAlignBtn ? activeAlignBtn.dataset.align : 'center';
-            
-            saveBookData();
-            renderCurrentPage();
-            renderTextBlocksList();
-        }
-
-        // Select text block
-        function selectTextBlock(index) {
-            selectedTextBlockIndex = index;
-            const textBlock = bookData.pages[currentPageIndex].textBlocks[index];
-            
-            // Show editor
-            document.getElementById('textEditor').style.display = 'block';
-            
-            // Populate editor
-            document.getElementById('textContent').value = textBlock.content;
-            document.getElementById('fontFamily').value = textBlock.fontFamily;
-            document.getElementById('fontSize').value = textBlock.fontSize;
-            document.getElementById('fontWeight').value = textBlock.fontWeight;
-            document.getElementById('textColor').value = textBlock.color;
-            document.getElementById('textPosition').value = textBlock.position;
-            
-            // Set alignment
-            document.querySelectorAll('[data-align]').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.align === textBlock.align);
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadLabel.addEventListener(eventName, () => {
+                    uploadLabel.classList.add('drag-over');
+                }, false);
             });
-            
-            renderTextBlocksList();
-        }
 
-        // Render text blocks list
-        function renderTextBlocksList() {
-            const list = document.getElementById('textBlocksList');
-            const textBlocks = bookData.pages[currentPageIndex].textBlocks;
-            
-            if (textBlocks.length === 0) {
-                list.innerHTML = '<p class="text-muted small text-center">No text blocks yet. Click + to add one.</p>';
-                return;
-            }
-            
-            list.innerHTML = textBlocks.map((block, index) => `
-                <div class="text-block-item ${index === selectedTextBlockIndex ? 'active' : ''}" 
-                     onclick="selectTextBlock(${index})">
-                    <div class="text-block-preview">${block.content || 'Empty text'}</div>
-                    <i class="fas fa-grip-vertical text-block-handle"></i>
-                </div>
-            `).join('');
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadLabel.addEventListener(eventName, () => {
+                    uploadLabel.classList.remove('drag-over');
+                }, false);
+            });
+
+            uploadLabel.addEventListener('drop', function(e) {
+                const files = e.dataTransfer.files;
+                PhotoLibrary.uploadPhotos(files);
+            }, false);
         }
 
         // Render current page
@@ -532,66 +608,87 @@
             const canvas = document.getElementById('pageCanvas');
             const imageContainer = document.getElementById('imageContainer');
             const textContainer = document.getElementById('textContainer');
-            
+
             const isFreeMode = page.layoutMode === 'free';
-            
+
+            // Update layout mode toggle
+            document.getElementById('layoutModeGrid').checked = !isFreeMode;
+            document.getElementById('layoutModeFree').checked = isFreeMode;
+            document.getElementById('gridSettings').style.display = isFreeMode ? 'none' : 'block';
+            document.getElementById('freeModeSettings').style.display = isFreeMode ? 'block' : 'none';
+
             // Update canvas
             canvas.className = `page-canvas ${bookData.orientation}`;
             if (isFreeMode) {
                 canvas.classList.add('free-layout');
             }
-            canvas.style.backgroundColor = page.backgroundColor;
-            
+            canvas.style.backgroundColor = page.backgroundColor || '#ffffff';
+
             // Apply pattern
             canvas.classList.remove('bg-pattern-dots', 'bg-pattern-lines', 'bg-pattern-grid');
             if (page.bgPattern && page.bgPattern !== 'none') {
                 canvas.classList.add(`bg-pattern-${page.bgPattern}`);
             }
-            
-            // Update image grid
+
+            // Update image container
             imageContainer.className = `image-grid ${isFreeMode ? 'free' : bookData.layout}`;
-            
+
             if (!isFreeMode) {
-                const columns = page.imageColumns || 1;
-                imageContainer.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
-                imageContainer.style.gap = `${page.imageSpacing}px`;
+                // Apply grid layout
+                const rows = page.gridRows || 2;
+                const cols = page.gridCols || 2;
+                const spacing = page.gridSpacing || 20;
+
+                imageContainer.style.display = 'grid';
+                imageContainer.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+                imageContainer.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+                imageContainer.style.gap = `${spacing}px`;
+                imageContainer.style.padding = `${page.gridPadding || 40}px`;
+            } else {
+                imageContainer.style.display = 'block';
+                imageContainer.style.padding = '0';
             }
-            
+
             // Render images
             imageContainer.innerHTML = '';
             page.images.forEach((imageData, index) => {
                 const imgDiv = document.createElement('div');
                 imgDiv.className = 'uploaded-image';
-                
+                imgDiv.dataset.index = index;
+
                 if (isFreeMode) {
-                    imgDiv.classList.add('free-positioned');
+                    imgDiv.classList.add('free-positioned', 'page-element-image');
                     const imgObj = typeof imageData === 'string' ? {
                         src: imageData,
                         x: 20 + (index % 3) * 250,
                         y: 20 + Math.floor(index / 3) * 250,
                         width: 220,
-                        height: 220
+                        height: 220,
+                        rotation: 0,
+                        zIndex: index + 1
                     } : imageData;
-                    
+
                     imgDiv.style.left = imgObj.x + 'px';
                     imgDiv.style.top = imgObj.y + 'px';
                     imgDiv.style.width = imgObj.width + 'px';
                     imgDiv.style.height = imgObj.height + 'px';
-                    imgDiv.dataset.index = index;
-                    
+                    imgDiv.style.zIndex = imgObj.zIndex || index + 1;
+                    if (imgObj.rotation) {
+                        imgDiv.style.transform = `rotate(${imgObj.rotation}deg)`;
+                        imgDiv.setAttribute('data-rotation', imgObj.rotation);
+                    }
+                    imgDiv.setAttribute('data-x', imgObj.x);
+                    imgDiv.setAttribute('data-y', imgObj.y);
+
                     imgDiv.innerHTML = `
                         <img src="${imgObj.src}" alt="Photo ${index + 1}">
                         <button class="delete-image" onclick="event.stopPropagation(); deleteImage(${index})">
                             <i class="fas fa-times"></i>
                         </button>
-                        <div class="resize-handle nw"></div>
-                        <div class="resize-handle ne"></div>
-                        <div class="resize-handle sw"></div>
-                        <div class="resize-handle se"></div>
+                        <div class="rotation-handle" title="Drag to rotate">
+                            <i class="fas fa-redo"></i>
+                        </div>
                     `;
-                    
-                    makeDraggable(imgDiv, index, 'image');
-                    makeResizable(imgDiv, index, 'image');
                 } else {
                     const src = typeof imageData === 'string' ? imageData : imageData.src;
                     imgDiv.innerHTML = `
@@ -601,103 +698,134 @@
                         </button>
                     `;
                 }
-                
+
                 imageContainer.appendChild(imgDiv);
             });
-            
+
             // Render text blocks
             textContainer.innerHTML = '';
             if (page.textBlocks && page.textBlocks.length > 0) {
                 page.textBlocks.forEach((block, index) => {
                     const textDiv = document.createElement('div');
-                    textDiv.className = `page-text-element`;
-                    
+                    textDiv.className = 'page-text-element';
+                    textDiv.dataset.index = index;
+
                     if (isFreeMode) {
                         textDiv.classList.add('free-positioned');
                         textDiv.style.left = (block.x || 20) + 'px';
                         textDiv.style.top = (block.y || 500 + (index * 80)) + 'px';
                         textDiv.style.width = (block.width || 300) + 'px';
-                        textDiv.dataset.index = index;
-                        
+                        textDiv.style.zIndex = block.zIndex || 100 + index;
+                        if (block.rotation) {
+                            textDiv.style.transform = `rotate(${block.rotation}deg)`;
+                            textDiv.setAttribute('data-rotation', block.rotation);
+                        }
+                        textDiv.setAttribute('data-x', block.x || 20);
+                        textDiv.setAttribute('data-y', block.y || 500 + (index * 80));
+
                         textDiv.innerHTML = `
                             ${block.content}
-                            <div class="resize-handle nw"></div>
-                            <div class="resize-handle ne"></div>
-                            <div class="resize-handle sw"></div>
-                            <div class="resize-handle se"></div>
+                            <div class="rotation-handle" title="Drag to rotate">
+                                <i class="fas fa-redo"></i>
+                            </div>
                         `;
-                        
-                        makeDraggable(textDiv, index, 'text');
-                        makeResizable(textDiv, index, 'text');
                     } else {
-                        textDiv.classList.add(`text-position-${block.position}`);
+                        textDiv.classList.add(`text-position-${block.position || 'bottom'}`);
                         textDiv.textContent = block.content;
                     }
-                    
-                    textDiv.style.fontFamily = block.fontFamily;
-                    textDiv.style.fontSize = `${block.fontSize}px`;
-                    textDiv.style.fontWeight = block.fontWeight;
-                    textDiv.style.color = block.color;
-                    textDiv.style.textAlign = block.align;
-                    
+
+                    // Apply styles
+                    textDiv.style.fontFamily = block.fontFamily || "'Montserrat', sans-serif";
+                    textDiv.style.fontSize = `${block.fontSize || 16}px`;
+                    textDiv.style.fontWeight = block.fontWeight || 400;
+                    textDiv.style.color = block.color || '#2c3e50';
+                    textDiv.style.textAlign = block.align || 'center';
+
+                    // Apply additional styles
+                    if (block.style) {
+                        if (block.style.fontStyle) textDiv.style.fontStyle = block.style.fontStyle;
+                        if (block.style.textDecoration) textDiv.style.textDecoration = block.style.textDecoration;
+                        if (block.style.lineHeight) textDiv.style.lineHeight = block.style.lineHeight;
+                        if (block.style.letterSpacing) textDiv.style.letterSpacing = block.style.letterSpacing + 'px';
+                        if (block.style.backgroundColor && block.style.backgroundOpacity > 0) {
+                            const bgColor = block.style.backgroundColor;
+                            const opacity = block.style.backgroundOpacity;
+                            // Convert hex to rgba
+                            const hex = bgColor.replace('#', '');
+                            const r = parseInt(hex.substring(0, 2), 16);
+                            const g = parseInt(hex.substring(2, 4), 16);
+                            const b = parseInt(hex.substring(4, 6), 16);
+                            textDiv.style.backgroundColor = `rgba(${r}, ${g}, ${b}, ${opacity})`;
+                        }
+                    }
+
                     textDiv.onclick = (e) => {
-                        if (e.target === textDiv || e.target.classList.contains('resize-handle')) {
-                            if (!isFreeMode || e.target === textDiv) {
-                                selectTextBlock(index);
-                                // Switch to text tab
-                                document.getElementById('pills-text-tab').click();
-                            }
+                        if (!e.target.classList.contains('rotation-handle')) {
+                            TextEditor.selectTextBlock(index);
+                            document.getElementById('pills-text-tab').click();
                         }
                     };
-                    
+
                     textContainer.appendChild(textDiv);
                 });
             }
-            
+
             // Update page info
             document.getElementById('currentPageNumber').textContent = currentPageIndex + 1;
             document.getElementById('pageIndicator').textContent = currentPageIndex + 1;
-            document.getElementById('imageCount').textContent = page.images.length;
-            document.getElementById('textCount').textContent = page.textBlocks ? page.textBlocks.length : 0;
-            
+            document.getElementById('elementCount').textContent = (page.images?.length || 0) + (page.textBlocks?.length || 0);
+            document.getElementById('libraryCount').textContent = bookData.photoLibrary?.length || 0;
+
             // Update controls
-            document.getElementById('bgColor').value = page.backgroundColor;
-            document.getElementById('colorValue').textContent = page.backgroundColor;
-            document.getElementById('layoutMode').value = page.layoutMode || 'grid';
-            document.getElementById('imageColumns').value = page.imageColumns || 1;
-            document.getElementById('imageSpacing').value = page.imageSpacing || 20;
-            document.getElementById('spacingValue').textContent = page.imageSpacing || 20;
+            document.getElementById('bgColor').value = page.backgroundColor || '#ffffff';
+            document.getElementById('colorValue').textContent = page.backgroundColor || '#ffffff';
             document.getElementById('bgPattern').value = page.bgPattern || 'none';
-            
-            // Show/hide grid settings
-            document.getElementById('gridSettings').style.display = isFreeMode ? 'none' : 'block';
-            
-            // Show/hide free mode indicator
-            document.getElementById('freeModeIndicator').style.display = isFreeMode ? 'block' : 'none';
-            
-            renderTextBlocksList();
+
+            // Update grid controls
+            GridLayout.updateControls();
+
+            // Render text blocks list
+            TextEditor.renderTextBlocksList();
+
+            // Re-initialize interact.js for new elements
+            if (isFreeMode) {
+                FreeLayout.reinitialize();
+            }
+        }
+
+        // Delete image
+        function deleteImage(imageIndex) {
+            if (!confirm('Delete this image?')) return;
+
+            bookData.pages[currentPageIndex].images.splice(imageIndex, 1);
+            saveBookData();
+            renderCurrentPage();
+            PageManager.renderThumbnailStrip();
+            PageManager.showToast('Image deleted');
         }
 
         // Navigation
         function previousPage() {
             if (currentPageIndex > 0) {
                 currentPageIndex--;
-                selectedTextBlockIndex = null;
-                document.getElementById('textEditor').style.display = 'none';
+                TextEditor.clearSelection();
+                FreeLayout.deselectElement();
                 saveCurrentPageIndex();
                 renderCurrentPage();
                 updateNavigationButtons();
+                PageManager.updateThumbnailSelection();
             }
         }
 
         function nextPage() {
             if (currentPageIndex < bookData.numPages - 1) {
                 currentPageIndex++;
-                selectedTextBlockIndex = null;
-                document.getElementById('textEditor').style.display = 'none';
+                TextEditor.clearSelection();
+                FreeLayout.deselectElement();
                 saveCurrentPageIndex();
                 renderCurrentPage();
                 updateNavigationButtons();
+                PageManager.updateThumbnailSelection();
             }
         }
 
@@ -715,237 +843,163 @@
             localStorage.setItem('currentPageIndex', currentPageIndex.toString());
         }
 
-        // Export to PDF
-        async function exportToPDF() {
-            const exportBtn = document.getElementById('exportBtn');
-            const originalText = exportBtn.innerHTML;
-            exportBtn.innerHTML = '<span class="spinner-border spinner-border-custom me-2"></span> Exporting...';
-            exportBtn.disabled = true;
-
-            try {
-                const { jsPDF } = window.jspdf;
-                
-                let pageWidth, pageHeight;
-                if (bookData.orientation === 'landscape') {
-                    pageWidth = 297;
-                    pageHeight = 210;
-                } else if (bookData.orientation === 'portrait') {
-                    pageWidth = 210;
-                    pageHeight = 297;
-                } else {
-                    pageWidth = 210;
-                    pageHeight = 210;
-                }
-
-                const pdf = new jsPDF({
-                    orientation: bookData.orientation === 'landscape' ? 'l' : 'p',
-                    unit: 'mm',
-                    format: [pageWidth, pageHeight]
-                });
-
-                const originalPageIndex = currentPageIndex;
-
-                for (let i = 0; i < bookData.numPages; i++) {
-                    currentPageIndex = i;
-                    renderCurrentPage();
-                    await new Promise(resolve => setTimeout(resolve, 500));
-
-                    const canvas = await html2canvas(document.getElementById('pageCanvas'), {
-                        scale: 2,
-                        useCORS: true,
-                        logging: false,
-                        backgroundColor: bookData.pages[i].backgroundColor
-                    });
-
-                    const imgData = canvas.toDataURL('image/jpeg', 0.95);
-                    
-                    if (i > 0) pdf.addPage();
-                    pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
-                }
-
-                currentPageIndex = originalPageIndex;
-                renderCurrentPage();
-                pdf.save('my-photobook.pdf');
-                alert('Your photo book has been exported successfully!');
-            } catch (error) {
-                console.error('Export error:', error);
-                alert('There was an error exporting your photo book. Please try again.');
-            } finally {
-                exportBtn.innerHTML = originalText;
-                exportBtn.disabled = false;
-            }
-        }
-
-        // Drag and drop support
-        const uploadLabel = document.querySelector('.btn-upload');
-        
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            uploadLabel.addEventListener(eventName, (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-            }, false);
-        });
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            uploadLabel.addEventListener(eventName, () => {
-                uploadLabel.style.background = '#e8cba8';
-            }, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            uploadLabel.addEventListener(eventName, () => {
-                uploadLabel.style.background = '';
-            }, false);
-        });
-
-        uploadLabel.addEventListener('drop', function(e) {
-            const files = e.dataTransfer.files;
-            handleImageUpload({ target: { files: files } });
-        }, false);
-
-        // Drag and resize functionality for free positioning
-        let draggedElement = null;
-        let dragType = null;
-        let dragIndex = null;
-        let startX = 0;
-        let startY = 0;
-        let startLeft = 0;
-        let startTop = 0;
-        let resizing = false;
-        let resizeCorner = '';
-        let startWidth = 0;
-        let startHeight = 0;
-
-        function makeDraggable(element, index, type) {
-            element.addEventListener('mousedown', function(e) {
-                if (e.target.classList.contains('resize-handle')) return;
-                if (e.target.classList.contains('delete-image')) return;
-                
-                draggedElement = element;
-                dragType = type;
-                dragIndex = index;
-                
-                // Add selected class
-                document.querySelectorAll('.free-positioned').forEach(el => el.classList.remove('selected'));
-                element.classList.add('selected');
-                
-                const rect = element.getBoundingClientRect();
-                const parentRect = element.parentElement.getBoundingClientRect();
-                
-                startX = e.clientX;
-                startY = e.clientY;
-                startLeft = rect.left - parentRect.left;
-                startTop = rect.top - parentRect.top;
-                
-                e.preventDefault();
-            });
-        }
-
-        function makeResizable(element, index, type) {
-            const handles = element.querySelectorAll('.resize-handle');
-            handles.forEach(handle => {
-                handle.addEventListener('mousedown', function(e) {
-                    e.stopPropagation();
-                    
-                    draggedElement = element;
-                    dragType = type;
-                    dragIndex = index;
-                    resizing = true;
-                    resizeCorner = this.classList.contains('nw') ? 'nw' :
-                                  this.classList.contains('ne') ? 'ne' :
-                                  this.classList.contains('sw') ? 'sw' : 'se';
-                    
-                    // Add selected class
-                    document.querySelectorAll('.free-positioned').forEach(el => el.classList.remove('selected'));
-                    element.classList.add('selected');
-                    
-                    const rect = element.getBoundingClientRect();
-                    const parentRect = element.parentElement.getBoundingClientRect();
-                    
-                    startX = e.clientX;
-                    startY = e.clientY;
-                    startLeft = rect.left - parentRect.left;
-                    startTop = rect.top - parentRect.top;
-                    startWidth = rect.width;
-                    startHeight = rect.height;
-                    
-                    e.preventDefault();
-                });
-            });
-        }
-
-        document.addEventListener('mousemove', function(e) {
-            if (!draggedElement) return;
-            
-            const deltaX = e.clientX - startX;
-            const deltaY = e.clientY - startY;
-            
-            if (resizing) {
-                let newWidth = startWidth;
-                let newHeight = startHeight;
-                let newLeft = startLeft;
-                let newTop = startTop;
-                
-                if (resizeCorner.includes('e')) {
-                    newWidth = startWidth + deltaX;
-                } else if (resizeCorner.includes('w')) {
-                    newWidth = startWidth - deltaX;
-                    newLeft = startLeft + deltaX;
-                }
-                
-                if (resizeCorner.includes('s')) {
-                    newHeight = startHeight + deltaY;
-                } else if (resizeCorner.includes('n')) {
-                    newHeight = startHeight - deltaY;
-                    newTop = startTop + deltaY;
-                }
-                
-                // Enforce minimum size
-                if (newWidth >= 50 && newHeight >= 50) {
-                    draggedElement.style.width = newWidth + 'px';
-                    draggedElement.style.height = newHeight + 'px';
-                    draggedElement.style.left = newLeft + 'px';
-                    draggedElement.style.top = newTop + 'px';
-                }
-            } else {
-                // Dragging
-                draggedElement.style.left = (startLeft + deltaX) + 'px';
-                draggedElement.style.top = (startTop + deltaY) + 'px';
-            }
-        });
-
-        document.addEventListener('mouseup', function(e) {
-            if (draggedElement && dragIndex !== null) {
-                const page = bookData.pages[currentPageIndex];
-                
-                if (dragType === 'image') {
-                    const imgData = page.images[dragIndex];
-                    imgData.x = parseInt(draggedElement.style.left);
-                    imgData.y = parseInt(draggedElement.style.top);
-                    imgData.width = parseInt(draggedElement.style.width);
-                    imgData.height = parseInt(draggedElement.style.height);
-                } else if (dragType === 'text') {
-                    const textBlock = page.textBlocks[dragIndex];
-                    textBlock.x = parseInt(draggedElement.style.left);
-                    textBlock.y = parseInt(draggedElement.style.top);
-                    textBlock.width = parseInt(draggedElement.style.width);
-                    if (draggedElement.style.height) {
-                        textBlock.height = parseInt(draggedElement.style.height);
-                    }
-                }
-                
-                saveBookData();
-            }
-            
-            draggedElement = null;
-            dragType = null;
-            dragIndex = null;
-            resizing = false;
-            resizeCorner = '';
-        });
-
         // Initialize on page load
-        init();
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hide loading screen after initialization
+            setTimeout(() => {
+                const loadingScreen = document.getElementById('loadingScreen');
+                if (loadingScreen) {
+                    loadingScreen.classList.add('hidden');
+                }
+            }, 800);
+
+            init();
+
+            // Show keyboard hint briefly
+            setTimeout(() => {
+                const hint = document.getElementById('keyboardHint');
+                if (hint) {
+                    hint.classList.add('visible');
+                    setTimeout(() => hint.classList.remove('visible'), 4000);
+                }
+            }, 2000);
+        });
+
+        // Global keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ignore if typing in input/textarea
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+            // ? - Show shortcuts help
+            if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+                e.preventDefault();
+                showKeyboardShortcuts();
+            }
+
+            // Ctrl/Cmd + S - Save (prevent default, show toast)
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                saveBookData();
+                PageManager.showToast('Progress saved');
+            }
+
+            // Ctrl/Cmd + E - Export
+            if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+                e.preventDefault();
+                PDFExport.showExportDialog();
+            }
+
+            // Arrow keys for page navigation (when not editing)
+            if (e.key === 'ArrowLeft' && e.altKey) {
+                e.preventDefault();
+                previousPage();
+            }
+            if (e.key === 'ArrowRight' && e.altKey) {
+                e.preventDefault();
+                nextPage();
+            }
+
+            // N - New page
+            if (e.key === 'n' && !e.ctrlKey && !e.metaKey) {
+                e.preventDefault();
+                PageManager.addPage();
+            }
+
+            // T - Add text
+            if (e.key === 't' && !e.ctrlKey && !e.metaKey) {
+                e.preventDefault();
+                TextEditor.addTextBlock();
+                document.getElementById('pills-text-tab').click();
+            }
+
+            // G - Toggle grid/free mode
+            if (e.key === 'g' && !e.ctrlKey && !e.metaKey) {
+                e.preventDefault();
+                const page = bookData.pages[currentPageIndex];
+                const newMode = page.layoutMode === 'grid' ? 'free' : 'grid';
+                document.getElementById(newMode === 'grid' ? 'layoutModeGrid' : 'layoutModeFree').click();
+            }
+
+            // 1-9 - Quick page navigation
+            if (e.key >= '1' && e.key <= '9' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                const pageNum = parseInt(e.key) - 1;
+                if (pageNum < bookData.numPages) {
+                    e.preventDefault();
+                    PageManager.goToPage(pageNum);
+                }
+            }
+        });
+
+        function showKeyboardShortcuts() {
+            let dialog = document.getElementById('shortcutsDialog');
+            if (!dialog) {
+                dialog = document.createElement('div');
+                dialog.id = 'shortcutsDialog';
+                dialog.className = 'export-dialog-overlay';
+                dialog.innerHTML = `
+                    <div class="export-dialog" style="max-width: 500px;">
+                        <div class="export-dialog-header">
+                            <h4><i class="fas fa-keyboard"></i> Keyboard Shortcuts</h4>
+                            <button class="export-dialog-close" onclick="document.getElementById('shortcutsDialog').classList.remove('visible')">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="export-dialog-body">
+                            <div class="shortcuts-list" style="display: grid; gap: 12px;">
+                                <div class="shortcut-item" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                                    <span>Save progress</span>
+                                    <kbd style="background: #f0f0f0; padding: 4px 10px; border-radius: 6px; font-size: 12px;">Ctrl + S</kbd>
+                                </div>
+                                <div class="shortcut-item" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                                    <span>Export PDF</span>
+                                    <kbd style="background: #f0f0f0; padding: 4px 10px; border-radius: 6px; font-size: 12px;">Ctrl + E</kbd>
+                                </div>
+                                <div class="shortcut-item" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                                    <span>Previous page</span>
+                                    <kbd style="background: #f0f0f0; padding: 4px 10px; border-radius: 6px; font-size: 12px;">Alt + ←</kbd>
+                                </div>
+                                <div class="shortcut-item" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                                    <span>Next page</span>
+                                    <kbd style="background: #f0f0f0; padding: 4px 10px; border-radius: 6px; font-size: 12px;">Alt + →</kbd>
+                                </div>
+                                <div class="shortcut-item" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                                    <span>Add new page</span>
+                                    <kbd style="background: #f0f0f0; padding: 4px 10px; border-radius: 6px; font-size: 12px;">N</kbd>
+                                </div>
+                                <div class="shortcut-item" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                                    <span>Add text block</span>
+                                    <kbd style="background: #f0f0f0; padding: 4px 10px; border-radius: 6px; font-size: 12px;">T</kbd>
+                                </div>
+                                <div class="shortcut-item" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                                    <span>Toggle Grid/Free mode</span>
+                                    <kbd style="background: #f0f0f0; padding: 4px 10px; border-radius: 6px; font-size: 12px;">G</kbd>
+                                </div>
+                                <div class="shortcut-item" style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                                    <span>Go to page 1-9</span>
+                                    <kbd style="background: #f0f0f0; padding: 4px 10px; border-radius: 6px; font-size: 12px;">1-9</kbd>
+                                </div>
+                                <div class="shortcut-item" style="display: flex; justify-content: space-between; padding: 8px 0;">
+                                    <span>Delete selected element</span>
+                                    <kbd style="background: #f0f0f0; padding: 4px 10px; border-radius: 6px; font-size: 12px;">Delete</kbd>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="export-dialog-footer">
+                            <button class="btn btn-primary" onclick="document.getElementById('shortcutsDialog').classList.remove('visible')">
+                                Got it!
+                            </button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(dialog);
+                dialog.addEventListener('click', function(e) {
+                    if (e.target === dialog) {
+                        dialog.classList.remove('visible');
+                    }
+                });
+            }
+            dialog.classList.add('visible');
+        }
     </script>
 </body>
 </html>

@@ -109,28 +109,41 @@
         document.getElementById('startBtn').addEventListener('click', function() {
             const numPages = parseInt(document.getElementById('numPages').value) || 10;
             const orientation = document.getElementById('orientation').value;
-            
+            const btn = this;
+
             if (numPages < 1 || numPages > 100) {
                 alert('Please enter a valid number of pages (1-100)');
                 return;
             }
+
+            // Show loading state
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Creating your book...';
 
             // Save settings to localStorage
             const bookData = {
                 numPages: numPages,
                 orientation: orientation,
                 layout: selectedLayout,
+                photoLibrary: [],
                 pages: []
             };
 
-            // Initialize pages
+            // Initialize pages with enhanced structure
             for (let i = 0; i < numPages; i++) {
                 bookData.pages.push({
+                    id: 'page_' + i,
                     images: [],
                     caption: '',
                     backgroundColor: '#ffffff',
                     layoutMode: 'grid',
+                    gridTemplate: '2x2',
+                    gridRows: 2,
+                    gridCols: 2,
+                    gridSpacing: 20,
+                    gridPadding: 40,
                     textBlocks: [],
+                    elements: [],
                     bgPattern: 'none',
                     imageColumns: selectedLayout === 'classic' ? 1 : selectedLayout === 'modern' ? 2 : 3,
                     imageSpacing: 20
@@ -139,9 +152,18 @@
 
             localStorage.setItem('bookData', JSON.stringify(bookData));
             localStorage.setItem('currentPageIndex', '0');
-            
-            // Navigate to design page
-            window.location.href = 'design.html';
+
+            // Navigate to design page with slight delay for UX
+            setTimeout(() => {
+                window.location.href = 'design.html';
+            }, 500);
+        });
+
+        // Add keyboard support
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.target.matches('input, textarea')) {
+                document.getElementById('startBtn').click();
+            }
         });
     </script>
 </body>
