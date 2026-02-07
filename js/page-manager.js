@@ -9,6 +9,11 @@ const PageManager = (function() {
 
     function init() {
         renderThumbnailStrip();
+
+        // Enable swipe navigation on canvas
+        if (TouchGestures && TouchGestures.isTouchDevice()) {
+            enableSwipeNavigation();
+        }
     }
 
     function renderThumbnailStrip() {
@@ -322,6 +327,64 @@ const PageManager = (function() {
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 300);
         }, 3000);
+    }
+
+    function enableSwipeNavigation() {
+        const canvasArea = document.getElementById('pageCanvas');
+        if (!canvasArea) return;
+
+        console.log('PageManager: Enabling swipe navigation on canvas');
+
+        TouchGestures.enableSwipe(canvasArea, {
+            onSwipeLeft: function(delta, velocity) {
+                // Swipe left = next page
+                if (currentPageIndex < bookData.numPages - 1) {
+                    goToPage(currentPageIndex + 1);
+                    showSwipeFeedback('left');
+                }
+            },
+            onSwipeRight: function(delta, velocity) {
+                // Swipe right = previous page
+                if (currentPageIndex > 0) {
+                    goToPage(currentPageIndex - 1);
+                    showSwipeFeedback('right');
+                }
+            }
+        });
+    }
+
+    function showSwipeFeedback(direction) {
+        // Create visual feedback for swipe
+        const feedback = document.createElement('div');
+        feedback.className = 'swipe-feedback';
+        feedback.innerHTML = direction === 'left'
+            ? '<i class="fas fa-chevron-right"></i>'
+            : '<i class="fas fa-chevron-left"></i>';
+
+        feedback.style.cssText = `
+            position: fixed;
+            ${direction === 'left' ? 'right' : 'left'}: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--primary-color);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            z-index: 10000;
+            box-shadow: var(--shadow-lg);
+            animation: swipeIndicator 0.4s ease-out;
+        `;
+
+        document.body.appendChild(feedback);
+
+        setTimeout(() => {
+            feedback.remove();
+        }, 400);
     }
 
     return {
