@@ -1,0 +1,53 @@
+
+/* Photo Grid Items in Design Page */
+.photo-library-grid .photo-grid-item {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f5f5f5;
+    border: 2px solid #e0e0e0;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.photo-library-grid .photo-grid-item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: #6366f1;
+    z-index: 10;
+}
+
+.photo-library-grid .photo-grid-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.photo-library-grid .photo-grid-delete {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+    font-size: 0.75rem;
+}
+
+.photo-library-grid .photo-grid-item:hover .photo-grid-delete {
+    opacity: 1;
+}
+
+.photo-library-grid .photo-grid-delete:active {
+    transform: scale(0.9);
+    background: #dc2626;
+}

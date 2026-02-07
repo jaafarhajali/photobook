@@ -87,21 +87,27 @@ const PhotoLibrary = (function() {
     }
 
     function uploadPhotos(files) {
+        console.log('PhotoLibrary.uploadPhotos called with', files.length, 'files');
         const fileArray = Array.from(files);
         let processed = 0;
         const imageFiles = fileArray.filter(f => f.type.startsWith('image/'));
 
+        console.log('Found', imageFiles.length, 'image files');
+
         if (imageFiles.length === 0) {
-            PageManager.showToast('No valid image files selected', 'error');
+            alert('No valid image files selected');
             return;
         }
 
         imageFiles.forEach(file => {
+            console.log('Processing file:', file.name);
             const reader = new FileReader();
             reader.onload = function(e) {
+                console.log('File read successfully:', file.name);
                 // Create an image to get dimensions
                 const img = new Image();
                 img.onload = function() {
+                    console.log('Image loaded:', file.name, img.naturalWidth + 'x' + img.naturalHeight);
                     const photo = {
                         id: 'photo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                         src: e.target.result,
@@ -115,22 +121,28 @@ const PhotoLibrary = (function() {
 
                     bookData.photoLibrary.push(photo);
                     processed++;
+                    console.log('Photo added. Total in library:', bookData.photoLibrary.length);
 
                     if (processed === imageFiles.length) {
+                        console.log('All photos processed. Saving and rendering...');
                         saveBookData();
                         renderLibrary();
-                        PageManager.showToast(`${processed} photo(s) added`);
+                        alert(`${processed} photo(s) added successfully!`);
                     }
                 };
                 img.onerror = function() {
+                    console.error('Image load failed:', file.name);
                     processed++;
-                    PageManager.showToast(`Failed to load ${file.name}`, 'error');
+                    alert(`Failed to load ${file.name}`);
                     if (processed === imageFiles.length && bookData.photoLibrary.length > 0) {
                         saveBookData();
                         renderLibrary();
                     }
                 };
                 img.src = e.target.result;
+            };
+            reader.onerror = function(error) {
+                console.error('FileReader error:', error);
             };
             reader.readAsDataURL(file);
         });

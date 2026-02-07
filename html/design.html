@@ -364,8 +364,14 @@
 
             // Library upload
             document.getElementById('libraryUpload').addEventListener('change', function(e) {
-                PhotoLibrary.uploadPhotos(e.target.files);
-                e.target.value = '';
+                console.log('File input changed! Files:', e.target.files);
+                if (e.target.files && e.target.files.length > 0) {
+                    console.log('Calling PhotoLibrary.uploadPhotos...');
+                    PhotoLibrary.uploadPhotos(e.target.files);
+                    e.target.value = '';
+                } else {
+                    console.log('No files selected');
+                }
             });
 
             // Layout mode toggle
