@@ -4141,3 +4141,415 @@ button:focus-visible,
         max-height: 60vh;
     }
 }
+
+/* Upload Method Card Single (Full Width) */
+.upload-method-card-single {
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-light);
+    border-radius: 16px;
+    padding: 32px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.upload-method-card-single:hover {
+    background: white;
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.upload-method-card-single:active {
+    transform: scale(0.98);
+}
+
+.upload-method-card-single .upload-method-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 16px;
+    background: var(--primary-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+    margin-bottom: 8px;
+}
+
+.upload-method-card-single .upload-method-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.upload-method-card-single .upload-method-desc {
+    font-size: 0.9375rem;
+    color: var(--text-medium);
+}
+
+/* ============================================================
+   DESIGN PAGE MODERN LAYOUT
+   ============================================================ */
+
+/* Modern Workspace Layout */
+.design-workspace-modern {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 72px); /* Subtract header height */
+    background: var(--bg-secondary);
+}
+
+/* Page Thumbnails Bar (Top) */
+.page-thumbnails-bar {
+    background: white;
+    border-bottom: 2px solid var(--border-light);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    z-index: 10;
+}
+
+.thumbnails-scroll {
+    flex: 1;
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 4px 0;
+    scrollbar-width: thin;
+}
+
+.thumbnails-scroll::-webkit-scrollbar {
+    height: 6px;
+}
+
+.thumbnails-scroll::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 3px;
+}
+
+.thumbnails-scroll::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+.thumbnails-scroll::-webkit-scrollbar-thumb:hover {
+    background: var(--text-medium);
+}
+
+.page-navigation-modern {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    padding-left: 16px;
+    border-left: 1px solid var(--border-light);
+}
+
+.page-indicator-modern {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    white-space: nowrap;
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+.btn-nav-modern {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-size: 0.875rem;
+}
+
+.btn-nav-modern:hover:not(:disabled) {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.btn-nav-modern:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Canvas Workspace (Center) */
+.canvas-workspace {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    overflow: auto;
+    position: relative;
+}
+
+.canvas-container-modern {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.page-canvas {
+    background: white;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    position: relative;
+}
+
+/* Element Toolbar Modern (Floating) */
+.element-toolbar-modern {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    background: white;
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 8px;
+    display: none; /* Hidden by default, shown when element selected */
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+.element-toolbar-modern.active {
+    display: flex;
+}
+
+.btn-toolbar {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    border: none;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-size: 0.875rem;
+}
+
+.btn-toolbar:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-toolbar.btn-delete:hover {
+    background: var(--danger-color);
+    color: white;
+}
+
+.toolbar-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--border-light);
+}
+
+.toolbar-field {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8125rem;
+    color: var(--text-dark);
+}
+
+.toolbar-field label {
+    margin: 0;
+    font-weight: 500;
+}
+
+.toolbar-input {
+    width: 60px;
+    height: 32px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0 8px;
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+.toolbar-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* Bottom Control Panel */
+.bottom-control-panel {
+    background: white;
+    border-top: 2px solid var(--border-light);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    max-height: 50vh;
+    z-index: 20;
+}
+
+.mobile-bottom-nav {
+    display: flex;
+    border-bottom: 1px solid var(--border-light);
+    background: var(--bg-primary);
+}
+
+.bottom-nav-item {
+    flex: 1;
+    padding: 14px 12px;
+    border: none;
+    background: transparent;
+    color: var(--text-medium);
+    font-size: 0.75rem;
+    font-weight: 500;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    position: relative;
+}
+
+.bottom-nav-item i {
+    font-size: 1.25rem;
+    transition: all var(--transition-fast);
+}
+
+.bottom-nav-item.active {
+    color: var(--primary-color);
+}
+
+.bottom-nav-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--primary-gradient);
+    border-radius: 3px 3px 0 0;
+}
+
+.bottom-nav-item:hover:not(.active) {
+    color: var(--text-dark);
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.bottom-nav-content {
+    overflow-y: auto;
+    max-height: calc(50vh - 65px);
+}
+
+.bottom-nav-panel {
+    display: none;
+    padding: 16px;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.bottom-nav-panel.active {
+    display: block;
+}
+
+.bottom-nav-panel .settings-card {
+    margin-bottom: 12px;
+}
+
+.bottom-nav-panel .settings-card:last-child {
+    margin-bottom: 0;
+}
+
+/* Page Number Badge Modern */
+.page-number-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(0, 0, 0, 0.75);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    backdrop-filter: blur(4px);
+    z-index: 10;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .design-workspace-modern {
+        height: calc(100vh - 60px);
+    }
+
+    .page-thumbnails-bar {
+        padding: 8px 12px;
+    }
+
+    .canvas-workspace {
+        padding: 16px;
+    }
+
+    .element-toolbar-modern {
+        top: 16px;
+        right: 16px;
+        padding: 6px;
+        gap: 6px;
+    }
+
+    .btn-toolbar {
+        width: 32px;
+        height: 32px;
+    }
+
+    .toolbar-field {
+        font-size: 0.75rem;
+    }
+
+    .toolbar-input {
+        width: 50px;
+        height: 28px;
+        font-size: 0.8125rem;
+    }
+
+    .page-navigation-modern {
+        padding-left: 12px;
+        gap: 8px;
+    }
+
+    .btn-nav-modern {
+        width: 32px;
+        height: 32px;
+    }
+}
+
+@media (min-width: 769px) {
+    .bottom-control-panel {
+        max-height: 40vh;
+    }
+
+    .bottom-nav-content {
+        max-height: calc(40vh - 65px);
+    }
+
+    .bottom-nav-item {
+        font-size: 0.875rem;
+    }
+}

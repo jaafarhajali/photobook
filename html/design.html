@@ -49,9 +49,61 @@
             </div>
         </div>
 
-        <div class="design-workspace">
-            <!-- Left Sidebar (Desktop) / Bottom Panel Container (Mobile) -->
-            <div class="sidebar">
+        <div class="design-workspace-modern">
+            <!-- Page Thumbnails Bar (Top) -->
+            <div class="page-thumbnails-bar">
+                <div class="thumbnails-scroll" id="pageThumbnailStrip">
+                    <!-- Populated by PageManager -->
+                </div>
+                <div class="page-navigation-modern">
+                    <span class="page-indicator-modern">
+                        Page <span id="pageIndicator">1</span> / <span id="totalPagesIndicator">1</span>
+                    </span>
+                    <div class="nav-buttons">
+                        <button class="btn-nav-modern" id="prevBtn" disabled>
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="btn-nav-modern" id="nextBtn">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Canvas Area (Center) -->
+            <div class="canvas-workspace">
+                <!-- Page Canvas -->
+                <div class="canvas-container-modern">
+                    <div id="pageCanvas" class="page-canvas landscape">
+                        <div class="page-number-badge">Page <span id="currentPageNumber">1</span></div>
+                        <div id="imageContainer" class="image-grid classic"></div>
+                        <div id="textContainer"></div>
+                    </div>
+                </div>
+
+                <!-- Element Toolbar (Floating) -->
+                <div id="elementToolbar" class="element-toolbar-modern">
+                    <button class="btn-toolbar" onclick="FreeLayout.bringToFront()" title="Bring to Front">
+                        <i class="fas fa-arrow-up"></i>
+                    </button>
+                    <button class="btn-toolbar" onclick="FreeLayout.sendToBack()" title="Send to Back">
+                        <i class="fas fa-arrow-down"></i>
+                    </button>
+                    <div class="toolbar-divider"></div>
+                    <div class="toolbar-field">
+                        <label>Rotate:</label>
+                        <input type="number" class="toolbar-input" id="rotationValue" min="-180" max="180" value="0">
+                        <span>°</span>
+                    </div>
+                    <div class="toolbar-divider"></div>
+                    <button class="btn-toolbar btn-delete" onclick="FreeLayout.deleteSelected()" title="Delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Bottom Control Panel -->
+            <div class="bottom-control-panel">
                 <!-- Mobile Bottom Navigation Bar -->
                 <div class="mobile-bottom-nav">
                     <button class="bottom-nav-item active" data-tab="photos">
@@ -373,60 +425,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Main Canvas Area -->
-            <div class="canvas-area">
-                <!-- Element Toolbar -->
-                <div id="elementToolbar" class="element-toolbar">
-                    <div class="toolbar-group">
-                        <button class="btn btn-sm btn-outline-secondary" onclick="FreeLayout.bringToFront()" title="Bring to Front">
-                            <i class="fas fa-layer-group"></i> Front
-                        </button>
-                        <button class="btn btn-sm btn-outline-secondary" onclick="FreeLayout.sendToBack()" title="Send to Back">
-                            <i class="fas fa-layer-group"></i> Back
-                        </button>
-                    </div>
-                    <div class="toolbar-group">
-                        <label class="small me-2">Rotate:</label>
-                        <input type="number" class="form-control form-control-sm" id="rotationValue" style="width: 70px;" min="-180" max="180" value="0">
-                        <span class="ms-1">°</span>
-                    </div>
-                    <div class="toolbar-group">
-                        <span class="small text-muted" id="positionDisplay">X: 0 Y: 0</span>
-                        <span class="small text-muted ms-2" id="sizeDisplay">0 × 0</span>
-                    </div>
-                    <div class="toolbar-group">
-                        <button class="btn btn-sm btn-outline-danger" onclick="FreeLayout.deleteSelected()" title="Delete">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Page Canvas -->
-                <div id="pageCanvas" class="page-canvas landscape">
-                    <div class="page-number-badge">Page <span id="currentPageNumber">1</span></div>
-                    <div id="imageContainer" class="image-grid classic"></div>
-                    <div id="textContainer"></div>
-                </div>
-
-                <!-- Page Thumbnail Strip -->
-                <div id="pageThumbnailStrip" class="page-thumbnail-strip">
-                    <!-- Populated by PageManager -->
-                </div>
-
-                <!-- Page Navigation (legacy, kept for compatibility) -->
-                <div class="page-navigation">
-                    <button class="btn btn-nav prev" id="prevBtn" disabled>
-                        <i class="fas fa-chevron-left"></i> Previous
-                    </button>
-                    <div class="page-indicator">
-                        Page <span id="pageIndicator">1</span> of <span id="totalPagesIndicator">1</span>
-                    </div>
-                    <button class="btn btn-nav next" id="nextBtn">
-                        Next <i class="fas fa-chevron-right"></i>
-                    </button>
                 </div>
             </div>
         </div>

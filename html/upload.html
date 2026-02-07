@@ -62,24 +62,14 @@
                     <span>Choose Upload Method</span>
                 </div>
 
-                <div class="upload-methods-grid">
-                    <label for="fileUpload" class="upload-method-card">
-                        <div class="upload-method-icon">
-                            <i class="fas fa-folder-open"></i>
-                        </div>
-                        <div class="upload-method-title">Choose Files</div>
-                        <div class="upload-method-desc">Select from your device</div>
-                    </label>
-                    <input type="file" id="fileUpload" multiple accept="image/*" class="hidden">
-
-                    <button id="cameraUpload" class="upload-method-card" type="button">
-                        <div class="upload-method-icon">
-                            <i class="fas fa-camera"></i>
-                        </div>
-                        <div class="upload-method-title">Take Photo</div>
-                        <div class="upload-method-desc">Use your camera</div>
-                    </button>
-                </div>
+                <label for="fileUpload" class="upload-method-card-single">
+                    <div class="upload-method-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <div class="upload-method-title">Choose Photos</div>
+                    <div class="upload-method-desc">Select photos from your device</div>
+                </label>
+                <input type="file" id="fileUpload" multiple accept="image/*" class="hidden">
             </div>
 
             <!-- Photo Library Card -->
@@ -108,32 +98,6 @@
                 Continue to Design
                 <i class="fas fa-arrow-right ms-2"></i>
             </button>
-        </div>
-    </div>
-
-    <!-- Camera Modal -->
-    <div id="cameraModal" class="camera-modal">
-        <div class="camera-modal-content">
-            <div class="camera-header">
-                <h3 class="camera-title">
-                    <i class="fas fa-camera me-2"></i>Capture Photo
-                </h3>
-                <button class="btn-close-camera" id="closeCameraBtn">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="camera-preview-container">
-                <video id="cameraPreview" autoplay playsinline></video>
-                <canvas id="cameraCanvas" style="display: none;"></canvas>
-            </div>
-            <div class="camera-footer">
-                <button class="btn-secondary-large" id="cancelCameraBtn">
-                    Cancel
-                </button>
-                <button class="btn-primary-large" id="captureBtn">
-                    <i class="fas fa-camera me-2"></i>Capture
-                </button>
-            </div>
         </div>
     </div>
 
@@ -228,76 +192,6 @@
             // Reset input
             e.target.value = '';
         });
-
-        // Camera upload handler (basic - will be enhanced)
-        document.getElementById('cameraUpload').addEventListener('click', function() {
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                openCamera();
-            } else {
-                alert('Camera access is not supported on this device. Please use the file upload option.');
-            }
-        });
-
-        // Camera functionality
-        let cameraStream = null;
-
-        function openCamera() {
-            const modal = document.getElementById('cameraModal');
-            const video = document.getElementById('cameraPreview');
-
-            navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'environment' } // Use back camera on mobile
-            })
-            .then(stream => {
-                cameraStream = stream;
-                video.srcObject = stream;
-                modal.style.display = 'block';
-            })
-            .catch(err => {
-                console.error('Camera error:', err);
-                alert('Could not access camera. Please check permissions or use file upload.');
-            });
-        }
-
-        function closeCamera() {
-            const modal = document.getElementById('cameraModal');
-            const video = document.getElementById('cameraPreview');
-
-            if (cameraStream) {
-                cameraStream.getTracks().forEach(track => track.stop());
-                cameraStream = null;
-            }
-
-            video.srcObject = null;
-            modal.style.display = 'none';
-        }
-
-        function capturePhoto() {
-            const video = document.getElementById('cameraPreview');
-            const canvas = document.getElementById('cameraCanvas');
-            const ctx = canvas.getContext('2d');
-
-            // Set canvas size to video size
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-
-            // Draw video frame to canvas
-            ctx.drawImage(video, 0, 0);
-
-            // Get image data
-            const imageData = canvas.toDataURL('image/jpeg', 0.9);
-
-            // Add to library
-            addPhoto(imageData);
-
-            // Close camera
-            closeCamera();
-        }
-
-        // Camera modal event listeners
-        document.getElementById('closeCameraBtn').addEventListener('click', closeCamera);
-        document.getElementById('cancelCameraBtn').addEventListener('click', closeCamera);
-        document.getElementById('captureBtn').addEventListener('click', capturePhoto);
 
         // Continue to design
         document.getElementById('continueBtn').addEventListener('click', function() {
