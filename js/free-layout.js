@@ -16,6 +16,12 @@ const FreeLayout = (function() {
         setupInteract();
         setupKeyboardShortcuts();
         createAlignmentGuides();
+
+        // Enable touch gestures on mobile
+        if (TouchGestures && TouchGestures.isTouchDevice()) {
+            console.log('FreeLayout: Enabling touch gestures for mobile');
+            setupTouchGestures();
+        }
     }
 
     function createAlignmentGuides() {
@@ -423,9 +429,72 @@ const FreeLayout = (function() {
         saveElementPosition(selectedElement);
     }
 
+    function setupTouchGestures() {
+        // Enable touch gestures on all free-positioned elements
+        enableTouchGesturesOnElements();
+
+        // Re-enable touch gestures when new elements are added (via MutationObserver)
+        const canvas = document.getElementById('pageCanvas');
+        if (canvas) {
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    mutation.addedNodes.forEach(function(node) {
+                        if (node.nodeType === 1 && node.classList && node.classList.contains('free-positioned')) {
+                            enableTouchGesturesOnElement(node);
+                        }
+                    });
+                });
+            });
+
+            observer.observe(canvas, { childList: true, subtree: true });
+        }
+    }
+
+    function enableTouchGesturesOnElements() {
+        const elements = document.querySelectorAll('.free-positioned');
+        elements.forEach(element => {
+            enableTouchGesturesOnElement(element);
+        });
+    }
+
+    function enableTouchGesturesOnElement(element) {
+        if (!TouchGestures) return;
+
+        // Enable pinch-to-zoom and two-finger rotation
+        TouchGestures.enablePinchAndRotate(element, {
+            onScale: function(scale, elem, newWidth, newHeight) {
+                // Update element size
+                elem.style.width = newWidth + 'px';
+                elem.style.height = newHeight + 'px';
+            },
+            onRotate: function(rotation, elem) {
+                // Update element rotation
+                elem.style.transform = `rotate(${rotation}deg)`;
+
+                // Update rotation input if element is selected
+                if (selectedElement === elem) {
+                    const rotationInput = document.getElementById('rotationValue');
+                    if (rotationInput) {
+                        rotationInput.value = Math.round(rotation);
+                    }
+                }
+            },
+            onGestureEnd: function(elem) {
+                // Save position after gesture
+                saveElementPosition(elem);
+                PageManager.renderThumbnailStrip();
+            }
+        });
+    }
+
     function reinitialize() {
         if (typeof interact !== 'undefined') {
             setupInteract();
+
+            // Re-enable touch gestures
+            if (TouchGestures && TouchGestures.isTouchDevice()) {
+                setupTouchGestures();
+            }
         }
     }
 
