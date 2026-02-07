@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Photo Book Designer - Setup</title>
     
     <!-- Bootstrap CSS -->
@@ -153,9 +153,9 @@
             localStorage.setItem('bookData', JSON.stringify(bookData));
             localStorage.setItem('currentPageIndex', '0');
 
-            // Navigate to design page with slight delay for UX
+            // Navigate to upload page with slight delay for UX
             setTimeout(() => {
-                window.location.href = 'design.html';
+                window.location.href = 'upload.html';
             }, 500);
         });
 

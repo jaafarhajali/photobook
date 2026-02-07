@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Photo Book Designer - Upload Photos</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600;700&family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Upload Screen -->
+    <div id="uploadScreen" class="setup-screen">
+        <div class="container">
+            <div class="setup-container animate-in">
+                <div class="setup-header">
+                    <h2><i class="fas fa-images me-2"></i>Upload Your Photos</h2>
+                    <p>Add photos to your library to use in your photobook</p>
+                </div>
+
+                <!-- Upload Options -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        Add Photos
+                    </div>
+
+                    <div class="row g-3">
+                        <!-- File Upload -->
+                        <div class="col-md-6">
+                            <label for="fileUpload" class="upload-option-card">
+                                <i class="fas fa-folder-open upload-option-icon"></i>
+                                <div class="upload-option-title">Choose Files</div>
+                                <div class="upload-option-desc">Select photos from your device</div>
+                            </label>
+                            <input type="file" id="fileUpload" multiple accept="image/*" class="hidden">
+                        </div>
+
+                        <!-- Camera Upload (Mobile) -->
+                        <div class="col-md-6">
+                            <button id="cameraUpload" class="upload-option-card" type="button">
+                                <i class="fas fa-camera upload-option-icon"></i>
+                                <div class="upload-option-title">Take Photo</div>
+                                <div class="upload-option-desc">Use your camera</div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Photo Library Grid -->
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <i class="fas fa-folder"></i>
+                        Your Photo Library
+                        <span class="badge bg-secondary ms-auto" id="photoCount">0 photos</span>
+                    </div>
+
+                    <div class="photo-upload-grid" id="photoLibraryGrid">
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-images" style="font-size: 4rem; opacity: 0.3;"></i>
+                            <p class="mt-3">No photos uploaded yet</p>
+                            <p class="small">Tap the buttons above to add photos</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="d-flex flex-column flex-sm-row gap-3 mt-4">
+                    <button class="btn btn-next" style="background: #6c757d; width: auto; flex: 0 0 auto;" onclick="window.location.href='setup.html'">
+                        <i class="fas fa-arrow-left me-2"></i> Back
+                    </button>
+                    <button class="btn btn-next" id="continueBtn" style="flex: 1;">
+                        Continue to Design <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Camera Modal (will be created by JS) -->
+    <div id="cameraModal" class="modal" style="display: none;">
+        <div class="modal-dialog modal-fullscreen-sm-down">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-camera me-2"></i>Capture Photo</h5>
+                    <button type="button" class="btn-close" id="closeCameraBtn"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <video id="cameraPreview" autoplay playsinline style="max-width: 100%; border-radius: 10px;"></video>
+                    <canvas id="cameraCanvas" style="display: none;"></canvas>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelCameraBtn">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="captureBtn">
+                        <i class="fas fa-camera me-2"></i>Capture
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Photo Library Module -->
+    <script src="../js/photo-library.js"></script>
+
+    <script>
+        let photoLibrary = [];
+
+        // Load existing library from localStorage
+        function loadLibrary() {
+            const stored = localStorage.getItem('photoLibrary');
+            if (stored) {
+                photoLibrary = JSON.parse(stored);
+                renderLibrary();
+            }
+        }
+
+        // Render photo library grid
+        function renderLibrary() {
+            const grid = document.getElementById('photoLibraryGrid');
+            const count = document.getElementById('photoCount');
+
+            if (photoLibrary.length === 0) {
+                grid.innerHTML = `
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-images" style="font-size: 4rem; opacity: 0.3;"></i>
+                        <p class="mt-3">No photos uploaded yet</p>
+                        <p class="small">Tap the buttons above to add photos</p>
+                    </div>
+                `;
+                count.textContent = '0 photos';
+                return;
+            }
+
+            count.textContent = `${photoLibrary.length} photo${photoLibrary.length !== 1 ? 's' : ''}`;
+
+            grid.innerHTML = photoLibrary.map((photo, index) => `
+                <div class="photo-upload-item">
+                    <img src="${photo.src}" alt="Photo ${index + 1}">
+                    <button class="photo-delete-btn" onclick="deletePhoto(${index})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Add photo to library
+        function addPhoto(src) {
+            photoLibrary.push({
+                id: 'photo_' + Date.now(),
+                src: src,
+                addedAt: Date.now()
+            });
+            saveLibrary();
+            renderLibrary();
+        }
+
+        // Delete photo from library
+        function deletePhoto(index) {
+            if (confirm('Delete this photo from your library?')) {
+                photoLibrary.splice(index, 1);
+                saveLibrary();
+                renderLibrary();
+            }
+        }
+
+        // Save library to localStorage
+        function saveLibrary() {
+            localStorage.setItem('photoLibrary', JSON.stringify(photoLibrary));
+        }
+
+       // File upload handler
+        document.getElementById('fileUpload').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+
+            files.forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        addPhoto(event.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Reset input
+            e.target.value = '';
+        });
+
+        // Camera upload handler (basic - will be enhanced)
+        document.getElementById('cameraUpload').addEventListener('click', function() {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                openCamera();
+            } else {
+                alert('Camera access is not supported on this device. Please use the file upload option.');
+            }
+        });
+
+        // Camera functionality
+        let cameraStream = null;
+
+        function openCamera() {
+            const modal = document.getElementById('cameraModal');
+            const video = document.getElementById('cameraPreview');
+
+            navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'environment' } // Use back camera on mobile
+            })
+            .then(stream => {
+                cameraStream = stream;
+                video.srcObject = stream;
+                modal.style.display = 'block';
+            })
+            .catch(err => {
+                console.error('Camera error:', err);
+                alert('Could not access camera. Please check permissions or use file upload.');
+            });
+        }
+
+        function closeCamera() {
+            const modal = document.getElementById('cameraModal');
+            const video = document.getElementById('cameraPreview');
+
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+            }
+
+            video.srcObject = null;
+            modal.style.display = 'none';
+        }
+
+        function capturePhoto() {
+            const video = document.getElementById('cameraPreview');
+            const canvas = document.getElementById('cameraCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // Set canvas size to video size
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            // Draw video frame to canvas
+            ctx.drawImage(video, 0, 0);
+
+            // Get image data
+            const imageData = canvas.toDataURL('image/jpeg', 0.9);
+
+            // Add to library
+            addPhoto(imageData);
+
+            // Close camera
+            closeCamera();
+        }
+
+        // Camera modal event listeners
+        document.getElementById('closeCameraBtn').addEventListener('click', closeCamera);
+        document.getElementById('cancelCameraBtn').addEventListener('click', closeCamera);
+        document.getElementById('captureBtn').addEventListener('click', capturePhoto);
+
+        // Continue to design
+        document.getElementById('continueBtn').addEventListener('click', function() {
+            if (photoLibrary.length === 0) {
+                if (!confirm('You have not uploaded any photos yet. Continue anyway?')) {
+                    return;
+                }
+            }
+            window.location.href = 'design.html';
+        });
+
+        // Initialize
+        loadLibrary();
+    </script>
+</body>
+</html>
