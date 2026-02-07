@@ -34,396 +34,203 @@
 
     <!-- Design Screen -->
     <div id="designScreen" class="design-screen">
-        <div class="design-header-modern">
+        <!-- Modern Clean Header -->
+        <div class="design-header-clean">
             <button class="btn-back" onclick="window.location.href='upload.html'">
                 <i class="fas fa-arrow-left"></i>
             </button>
-            <h1 class="header-title">Design Book</h1>
-            <div class="header-actions-modern">
-                <button class="btn-header-icon" onclick="window.location.href='setup.html'" title="Settings">
-                    <i class="fas fa-cog"></i>
-                </button>
-                <button class="btn-header-icon btn-export-icon" id="exportBtn" title="Export PDF">
-                    <i class="fas fa-download"></i>
-                </button>
+            <div class="header-center">
+                <h1 class="header-title">Design</h1>
+                <span class="page-counter" id="pageCounter">Page 1 / 10</span>
+            </div>
+            <button class="btn-header-icon btn-export-icon" id="exportBtn" title="Export PDF">
+                <i class="fas fa-download"></i>
+            </button>
+        </div>
+
+        <!-- Main Canvas Area -->
+        <div class="canvas-area-clean">
+            <div id="pageCanvas" class="page-canvas landscape">
+                <div id="imageContainer" class="image-grid classic"></div>
+                <div id="textContainer"></div>
             </div>
         </div>
 
-        <div class="design-workspace-modern">
-            <!-- Page Thumbnails Bar (Top) -->
-            <div class="page-thumbnails-bar">
-                <div class="thumbnails-scroll" id="pageThumbnailStrip">
-                    <!-- Populated by PageManager -->
-                </div>
-                <div class="page-navigation-modern">
-                    <span class="page-indicator-modern">
-                        Page <span id="pageIndicator">1</span> / <span id="totalPagesIndicator">1</span>
-                    </span>
-                    <div class="nav-buttons">
-                        <button class="btn-nav-modern" id="prevBtn" disabled>
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <button class="btn-nav-modern" id="nextBtn">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-                    </div>
-                </div>
+        <!-- Page Navigation Bar -->
+        <div class="page-nav-bar">
+            <button class="btn-page-nav" id="prevBtn" disabled>
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="page-thumbnails-compact" id="pageThumbnailStrip">
+                <!-- Populated by PageManager -->
+            </div>
+            <button class="btn-page-nav" id="nextBtn">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+
+        <!-- Element Toolbar (Floating when element selected) -->
+        <div id="elementToolbar" class="element-toolbar-floating">
+            <button class="btn-tool" onclick="FreeLayout.bringToFront()" title="Front">
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            <button class="btn-tool" onclick="FreeLayout.sendToBack()" title="Back">
+                <i class="fas fa-arrow-down"></i>
+            </button>
+            <div class="tool-divider"></div>
+            <input type="number" class="tool-input" id="rotationValue" placeholder="0°" min="-180" max="180" value="0">
+            <div class="tool-divider"></div>
+            <button class="btn-tool btn-danger" onclick="FreeLayout.deleteSelected()" title="Delete">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+
+        <!-- Bottom Controls Panel (Collapsible) -->
+        <div class="bottom-controls">
+            <!-- Controls Toggle Bar -->
+            <div class="controls-toggle-bar">
+                <button class="control-toggle-btn active" data-panel="photos">
+                    <i class="fas fa-images"></i>
+                </button>
+                <button class="control-toggle-btn" data-panel="layout">
+                    <i class="fas fa-th-large"></i>
+                </button>
+                <button class="control-toggle-btn" data-panel="text">
+                    <i class="fas fa-font"></i>
+                </button>
+                <button class="control-toggle-btn" data-panel="style">
+                    <i class="fas fa-palette"></i>
+                </button>
+                <button class="control-toggle-btn" data-panel="pages">
+                    <i class="fas fa-file"></i>
+                </button>
             </div>
 
-            <!-- Canvas Area (Center) -->
-            <div class="canvas-workspace">
-                <!-- Page Canvas -->
-                <div class="canvas-container-modern">
-                    <div id="pageCanvas" class="page-canvas landscape">
-                        <div class="page-number-badge">Page <span id="currentPageNumber">1</span></div>
-                        <div id="imageContainer" class="image-grid classic"></div>
-                        <div id="textContainer"></div>
+            <!-- Panels Container -->
+            <div class="controls-panels-container">
+                <!-- Photos Panel -->
+                <div class="control-panel active" id="panel-photos">
+                    <div class="panel-header">
+                        <h3>Photo Library</h3>
+                        <label for="libraryUpload" class="btn-add">
+                            <i class="fas fa-plus"></i>
+                        </label>
+                        <input type="file" id="libraryUpload" multiple accept="image/*" class="hidden">
+                    </div>
+                    <div class="photo-library-grid" id="photoLibraryGrid">
+                        <div class="empty-state-compact">
+                            <i class="fas fa-images"></i>
+                            <span>No photos</span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Element Toolbar (Floating) -->
-                <div id="elementToolbar" class="element-toolbar-modern">
-                    <button class="btn-toolbar" onclick="FreeLayout.bringToFront()" title="Bring to Front">
-                        <i class="fas fa-arrow-up"></i>
-                    </button>
-                    <button class="btn-toolbar" onclick="FreeLayout.sendToBack()" title="Send to Back">
-                        <i class="fas fa-arrow-down"></i>
-                    </button>
-                    <div class="toolbar-divider"></div>
-                    <div class="toolbar-field">
-                        <label>Rotate:</label>
-                        <input type="number" class="toolbar-input" id="rotationValue" min="-180" max="180" value="0">
-                        <span>°</span>
+                <!-- Layout Panel -->
+                <div class="control-panel" id="panel-layout">
+                    <div class="panel-header">
+                        <h3>Layout</h3>
                     </div>
-                    <div class="toolbar-divider"></div>
-                    <button class="btn-toolbar btn-delete" onclick="FreeLayout.deleteSelected()" title="Delete">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Bottom Control Panel -->
-            <div class="bottom-control-panel">
-                <!-- Mobile Bottom Navigation Bar -->
-                <div class="mobile-bottom-nav">
-                    <button class="bottom-nav-item active" data-tab="photos">
-                        <i class="fas fa-images"></i>
-                        <span>Photos</span>
-                    </button>
-                    <button class="bottom-nav-item" data-tab="layout">
-                        <i class="fas fa-th-large"></i>
-                        <span>Layout</span>
-                    </button>
-                    <button class="bottom-nav-item" data-tab="text">
-                        <i class="fas fa-font"></i>
-                        <span>Text</span>
-                    </button>
-                    <button class="bottom-nav-item" data-tab="style">
-                        <i class="fas fa-palette"></i>
-                        <span>Style</span>
-                    </button>
-                </div>
-
-                <!-- Tab Content Container -->
-                <div class="bottom-nav-content">
-                    <!-- Photos Tab -->
-                    <div class="bottom-nav-panel active" id="panel-photos">
-                        <div class="settings-card">
-                            <div class="card-label">
-                                <i class="fas fa-images"></i>
-                                <span>Photo Library</span>
-                                <span class="badge-count" id="libraryPhotoCount">0</span>
-                            </div>
-                            <label for="libraryUpload" class="btn-upload-modern">
-                                <i class="fas fa-cloud-upload-alt me-2"></i>
-                                <span>Upload More Photos</span>
+                    <div class="panel-content">
+                        <div class="layout-mode-selector">
+                            <input type="radio" class="mode-radio" name="layoutMode" id="layoutModeGrid" value="grid" checked>
+                            <label class="mode-btn" for="layoutModeGrid">
+                                <i class="fas fa-th"></i>
+                                <span>Grid</span>
                             </label>
-                            <input type="file" id="libraryUpload" multiple accept="image/*" class="hidden">
-                            <div class="photo-grid-modern mt-3" id="photoLibraryGrid">
-                                <div class="empty-state">
-                                    <div class="empty-icon">
-                                        <i class="fas fa-images"></i>
-                                    </div>
-                                    <div class="empty-title">No photos yet</div>
-                                    <div class="empty-desc">Upload photos to get started</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Layout Tab -->
-                    <div class="bottom-nav-panel" id="panel-layout">
-                        <div class="settings-card">
-                            <div class="card-label">
-                                <i class="fas fa-sliders-h"></i>
-                                <span>Layout Mode</span>
-                            </div>
-                            <div class="layout-mode-toggle-modern">
-                                <input type="radio" class="btn-check-modern" name="layoutMode" id="layoutModeGrid" value="grid" checked>
-                                <label class="mode-toggle-btn" for="layoutModeGrid">
-                                    <i class="fas fa-th-large"></i>
-                                    <span>Grid</span>
-                                </label>
-                                <input type="radio" class="btn-check-modern" name="layoutMode" id="layoutModeFree" value="free">
-                                <label class="mode-toggle-btn" for="layoutModeFree">
-                                    <i class="fas fa-arrows-alt"></i>
-                                    <span>Free</span>
-                                </label>
-                            </div>
+                            <input type="radio" class="mode-radio" name="layoutMode" id="layoutModeFree" value="free">
+                            <label class="mode-btn" for="layoutModeFree">
+                                <i class="fas fa-arrows-alt"></i>
+                                <span>Free</span>
+                            </label>
                         </div>
 
-                        <!-- Grid Settings -->
-                        <div class="settings-card" id="gridSettings">
-                            <div class="card-label">
-                                <i class="fas fa-th-large"></i>
-                                <span>Grid Settings</span>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="input-label">Grid Template</label>
-                                <select class="form-input" id="gridTemplateSelector">
-                                    <option value="1x1">Single (1×1)</option>
-                                    <option value="1x2">2 Horizontal (1×2)</option>
-                                    <option value="2x1">2 Vertical (2×1)</option>
-                                    <option value="2x2" selected>4 Grid (2×2)</option>
-                                    <option value="2x3">6 Grid (2×3)</option>
-                                    <option value="3x2">6 Grid (3×2)</option>
-                                    <option value="3x3">9 Grid (3×3)</option>
+                        <div id="gridSettings" class="layout-settings">
+                            <div class="setting-group">
+                                <label>Template</label>
+                                <select class="setting-input" id="gridTemplateSelector">
+                                    <option value="1x1">1×1</option>
+                                    <option value="2x2" selected>2×2</option>
+                                    <option value="3x3">3×3</option>
                                 </select>
                             </div>
-
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="input-label">Rows</label>
-                                    <input type="number" class="form-input" id="gridRows" min="1" max="6" value="2">
+                            <div class="setting-row">
+                                <div class="setting-group">
+                                    <label>Rows</label>
+                                    <input type="number" class="setting-input" id="gridRows" min="1" max="6" value="2">
                                 </div>
-                                <div class="form-group">
-                                    <label class="input-label">Columns</label>
-                                    <input type="number" class="form-input" id="gridCols" min="1" max="6" value="2">
+                                <div class="setting-group">
+                                    <label>Columns</label>
+                                    <input type="number" class="setting-input" id="gridCols" min="1" max="6" value="2">
                                 </div>
                             </div>
-
-                            <div class="form-group">
-                                <label class="input-label">Cell Spacing</label>
-                                <input type="range" class="form-range" id="gridSpacing" min="0" max="50" value="20">
-                                <div class="range-value"><span id="gridSpacingValue">20</span>px</div>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="input-label">Padding</label>
-                                <input type="range" class="form-range" id="gridPadding" min="0" max="50" value="40">
-                                <div class="range-value"><span id="gridPaddingValue">40</span>px</div>
-                            </div>
-
-                            <div class="form-check-modern">
-                                <input class="form-check-input-modern" type="checkbox" id="snapToGrid" checked>
-                                <label class="form-check-label-modern" for="snapToGrid">
-                                    <i class="fas fa-grip-vertical me-2"></i>Snap to grid
-                                </label>
-                            </div>
-
-                            <button class="btn-secondary-large mt-3" id="autoArrangeBtn">
-                                <i class="fas fa-magic me-2"></i>Auto Arrange
+                            <button class="btn-action" id="autoArrangeBtn">
+                                <i class="fas fa-magic"></i> Auto Arrange
                             </button>
                         </div>
 
-                        <!-- Free Mode Settings -->
-                        <div class="settings-card" id="freeModeSettings" style="display: none;">
-                            <div class="info-box">
-                                <i class="fas fa-info-circle me-2"></i>
-                                <span>Drag elements freely on the canvas. Use handles to resize and rotate.</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Text Tab -->
-                    <div class="bottom-nav-panel" id="panel-text">
-                        <div class="settings-card">
-                            <div class="d-flex justify-content-between align-items-center" style="margin-bottom: 12px;">
-                                <div class="card-label mb-0">
-                                    <i class="fas fa-text-height"></i>
-                                    <span>Text Blocks</span>
-                                </div>
-                                <button class="btn btn-sm btn-primary" id="addTextBtn">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </div>
-                            <div id="textBlocksList"></div>
-                        </div>
-
-                        <div class="settings-card" id="textEditor" style="display: none;">
-                            <div class="sidebar-section-title">
-                                <i class="fas fa-edit"></i> Edit Text
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label small">Text Content</label>
-                                <textarea class="form-control" id="textContent" rows="3" placeholder="Enter your text..."></textarea>
-                            </div>
-
-                            <!-- Formatting Buttons -->
-                            <div class="mb-3">
-                                <label class="form-label small">Formatting</label>
-                                <div class="btn-group w-100" role="group">
-                                    <button type="button" class="btn btn-outline-secondary btn-sm" id="boldBtn" title="Bold">
-                                        <i class="fas fa-bold"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-outline-secondary btn-sm" id="italicBtn" title="Italic">
-                                        <i class="fas fa-italic"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-outline-secondary btn-sm" id="underlineBtn" title="Underline">
-                                        <i class="fas fa-underline"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="row mb-3">
-                                <div class="col-7">
-                                    <label class="form-label small">Font Family</label>
-                                    <select class="form-select form-select-sm" id="fontFamily">
-                                        <!-- Populated by TextEditor module -->
-                                    </select>
-                                </div>
-                                <div class="col-5">
-                                    <label class="form-label small">Size</label>
-                                    <input type="number" class="form-control form-control-sm" id="fontSize" min="8" max="72" value="16">
-                                </div>
-                            </div>
-
-                            <div class="row mb-3">
-                                <div class="col-6">
-                                    <label class="form-label small">Weight</label>
-                                    <select class="form-select form-select-sm" id="fontWeight">
-                                        <option value="300">Light</option>
-                                        <option value="400" selected>Normal</option>
-                                        <option value="600">Semi-Bold</option>
-                                        <option value="700">Bold</option>
-                                    </select>
-                                </div>
-                                <div class="col-6">
-                                    <label class="form-label small">Color</label>
-                                    <input type="color" class="form-control form-control-color w-100" id="textColor" value="#2c3e50">
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label small">Alignment</label>
-                                <div class="btn-group w-100" role="group">
-                                    <button type="button" class="btn btn-outline-secondary btn-sm" data-align="left">
-                                        <i class="fas fa-align-left"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-outline-secondary btn-sm active" data-align="center">
-                                        <i class="fas fa-align-center"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-outline-secondary btn-sm" data-align="right">
-                                        <i class="fas fa-align-right"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-outline-secondary btn-sm" data-align="justify">
-                                        <i class="fas fa-align-justify"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label small">Position</label>
-                                <select class="form-select form-select-sm" id="textPosition">
-                                    <option value="top">Top</option>
-                                    <option value="middle">Middle</option>
-                                    <option value="bottom" selected>Bottom</option>
-                                </select>
-                            </div>
-
-                            <!-- Background & Rotation (New) -->
-                            <div class="row mb-3">
-                                <div class="col-6">
-                                    <label class="form-label small">Background</label>
-                                    <input type="color" class="form-control form-control-color w-100" id="textBgColor" value="#ffffff">
-                                </div>
-                                <div class="col-6">
-                                    <label class="form-label small">Opacity</label>
-                                    <input type="range" class="form-range" id="textBgOpacity" min="0" max="1" step="0.1" value="0">
-                                    <small class="text-muted"><span id="textBgOpacityValue">0%</span></small>
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label small">Rotation</label>
-                                <input type="range" class="form-range" id="textRotation" min="-180" max="180" value="0">
-                                <small class="text-muted"><span id="textRotationValue">0°</span></small>
-                            </div>
-
-                            <div class="row mb-3">
-                                <div class="col-6">
-                                    <label class="form-label small">Line Height</label>
-                                    <input type="range" class="form-range" id="lineHeight" min="1" max="3" step="0.1" value="1.5">
-                                    <small class="text-muted"><span id="lineHeightValue">1.5</span></small>
-                                </div>
-                                <div class="col-6">
-                                    <label class="form-label small">Letter Spacing</label>
-                                    <input type="range" class="form-range" id="letterSpacing" min="-2" max="10" value="0">
-                                    <small class="text-muted"><span id="letterSpacingValue">0px</span></small>
-                                </div>
-                            </div>
-
-                            <button class="btn btn-danger btn-sm w-100" id="deleteTextBtn">
-                                <i class="fas fa-trash"></i> Delete Text Block
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Style Tab -->
-                    <div class="bottom-nav-panel" id="panel-style">
-                        <div class="settings-card">
-                            <div class="card-label">
-                                <i class="fas fa-fill-drip"></i>
-                                <span>Page Background</span>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label small">Background Color</label>
-                                <div class="color-picker-container">
-                                    <input type="color" id="bgColor" class="color-picker" value="#ffffff">
-                                    <span id="colorValue">#ffffff</span>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label small">Background Pattern</label>
-                                <select class="form-select form-select-sm" id="bgPattern">
-                                    <option value="none">None</option>
-                                    <option value="dots">Dots</option>
-                                    <option value="lines">Lines</option>
-                                    <option value="grid">Grid</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="settings-card">
-                            <div class="card-label">
+                        <div id="freeModeSettings" class="layout-settings" style="display: none;">
+                            <p class="info-text">
                                 <i class="fas fa-info-circle"></i>
-                                <span>Book Info</span>
-                            </div>
-                            <div class="text-muted small">
-                                <div class="mb-2"><strong>Total Pages:</strong> <span id="totalPages">0</span></div>
-                                <div class="mb-2"><strong>Layout:</strong> <span id="currentLayout">Classic</span></div>
-                                <div class="mb-2"><strong>Orientation:</strong> <span id="currentOrientation">Landscape</span></div>
-                                <div class="mb-2"><strong>Photos in Library:</strong> <span id="libraryCount">0</span></div>
-                                <div><strong>Elements on Page:</strong> <span id="elementCount">0</span></div>
-                            </div>
+                                Drag, resize & rotate freely
+                            </p>
                         </div>
+                    </div>
+                </div>
 
-                        <div class="settings-card">
-                            <div class="card-label">
-                                <i class="fas fa-tools"></i>
-                                <span>Page Actions</span>
-                            </div>
-                            <div class="d-grid gap-2">
-                                <button class="btn btn-sm btn-outline-primary" onclick="PageManager.duplicatePage(currentPageIndex)">
-                                    <i class="fas fa-copy me-1"></i> Duplicate Page
-                                </button>
-                                <button class="btn btn-sm btn-outline-warning" onclick="PageManager.clearPage(currentPageIndex)">
-                                    <i class="fas fa-eraser me-1"></i> Clear Page
-                                </button>
-                            </div>
+                <!-- Text Panel -->
+                <div class="control-panel" id="panel-text">
+                    <div class="panel-header">
+                        <h3>Text</h3>
+                        <button class="btn-add" id="addTextBtn">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <div id="textBlocksList" class="text-blocks-list"></div>
+                    <div id="textEditor" class="text-editor" style="display: none;">
+                        <textarea class="text-input" id="textContent" placeholder="Enter text..."></textarea>
+                        <div class="text-controls">
+                            <select class="setting-input" id="fontFamily">
+                                <!-- Populated by TextEditor -->
+                            </select>
+                            <input type="number" class="setting-input-sm" id="fontSize" min="8" max="72" value="16" placeholder="Size">
+                            <input type="color" class="color-input" id="textColor" value="#000000">
                         </div>
+                    </div>
+                </div>
+
+                <!-- Style Panel -->
+                <div class="control-panel" id="panel-style">
+                    <div class="panel-header">
+                        <h3>Page Style</h3>
+                    </div>
+                    <div class="panel-content">
+                        <div class="setting-group">
+                            <label>Background</label>
+                            <input type="color" class="color-input-large" id="bgColor" value="#ffffff">
+                        </div>
+                        <div class="setting-group">
+                            <label>Pattern</label>
+                            <select class="setting-input" id="bgPattern">
+                                <option value="none">None</option>
+                                <option value="dots">Dots</option>
+                                <option value="lines">Lines</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pages Panel -->
+                <div class="control-panel" id="panel-pages">
+                    <div class="panel-header">
+                        <h3>Page Actions</h3>
+                    </div>
+                    <div class="panel-content">
+                        <button class="btn-action" onclick="PageManager.duplicatePage(currentPageIndex)">
+                            <i class="fas fa-copy"></i> Duplicate
+                        </button>
+                        <button class="btn-action" onclick="PageManager.clearPage(currentPageIndex)">
+                            <i class="fas fa-eraser"></i> Clear
+                        </button>
                     </div>
                 </div>
             </div>
@@ -514,28 +321,28 @@
 
         // Setup Bottom Navigation
         function setupBottomNavigation() {
-            const navItems = document.querySelectorAll('.bottom-nav-item');
-            const panels = document.querySelectorAll('.bottom-nav-panel');
+            const toggleBtns = document.querySelectorAll('.control-toggle-btn');
+            const panels = document.querySelectorAll('.control-panel');
 
-            navItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    const targetTab = this.getAttribute('data-tab');
+            toggleBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const targetPanel = this.getAttribute('data-panel');
 
-                    // Remove active class from all nav items and panels
-                    navItems.forEach(nav => nav.classList.remove('active'));
+                    // Remove active class from all buttons and panels
+                    toggleBtns.forEach(b => b.classList.remove('active'));
                     panels.forEach(panel => panel.classList.remove('active'));
 
-                    // Add active class to clicked nav item
+                    // Add active class to clicked button
                     this.classList.add('active');
 
                     // Show corresponding panel
-                    const targetPanel = document.getElementById('panel-' + targetTab);
-                    if (targetPanel) {
-                        targetPanel.classList.add('active');
+                    const panel = document.getElementById('panel-' + targetPanel);
+                    if (panel) {
+                        panel.classList.add('active');
                     }
 
                     // If switching to text tab and a text block is selected, show editor
-                    if (targetTab === 'text' && selectedTextBlockIndex !== null) {
+                    if (targetPanel === 'text' && selectedTextBlockIndex !== null) {
                         document.getElementById('textEditor').style.display = 'block';
                     }
                 });
@@ -544,7 +351,7 @@
 
         // Helper function to switch tabs programmatically
         function switchToTab(tabName) {
-            const targetButton = document.querySelector(`.bottom-nav-item[data-tab="${tabName}"]`);
+            const targetButton = document.querySelector(`.control-toggle-btn[data-panel="${tabName}"]`);
             if (targetButton) {
                 targetButton.click();
             }
@@ -898,6 +705,12 @@
         function updateNavigationButtons() {
             document.getElementById('prevBtn').disabled = currentPageIndex === 0;
             document.getElementById('nextBtn').disabled = currentPageIndex === bookData.numPages - 1;
+
+            // Update page counter in header
+            const pageCounter = document.getElementById('pageCounter');
+            if (pageCounter) {
+                pageCounter.textContent = `Page ${currentPageIndex + 1} / ${bookData.numPages}`;
+            }
         }
 
         // Save functions
