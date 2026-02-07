@@ -41,7 +41,12 @@ const PhotoLibrary = (function() {
         if (!container) return;
 
         if (bookData.photoLibrary.length === 0) {
-            container.innerHTML = '<p class="text-muted small text-center py-3">No photos yet. Upload some photos to get started.</p>';
+            container.innerHTML = `
+                <div class="empty-state-compact">
+                    <i class="fas fa-images"></i>
+                    <span>No photos</span>
+                </div>
+            `;
             updatePhotoCount();
             return;
         }
@@ -49,13 +54,13 @@ const PhotoLibrary = (function() {
         container.innerHTML = '';
         bookData.photoLibrary.forEach((photo, index) => {
             const item = document.createElement('div');
-            item.className = 'library-item';
+            item.className = 'photo-grid-item';
             item.dataset.photoId = photo.id;
             item.draggable = true;
 
             item.innerHTML = `
                 <img src="${photo.src}" alt="${photo.name || 'Photo'}" loading="lazy">
-                <button class="library-item-delete" title="Remove from library">
+                <button class="photo-grid-delete" title="Remove from library">
                     <i class="fas fa-times"></i>
                 </button>
             `;
@@ -63,7 +68,7 @@ const PhotoLibrary = (function() {
             item.addEventListener('dblclick', () => addPhotoToPage(photo.id));
             item.addEventListener('dragstart', (e) => handleDragStart(e, photo));
             item.addEventListener('dragend', handleDragEnd);
-            item.querySelector('.library-item-delete').addEventListener('click', (e) => {
+            item.querySelector('.photo-grid-delete').addEventListener('click', (e) => {
                 e.stopPropagation();
                 deleteFromLibrary(photo.id);
             });
