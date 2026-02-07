@@ -299,10 +299,16 @@
 
         // Initialize page
         function init() {
-            document.getElementById('totalPages').textContent = bookData.numPages;
-            document.getElementById('currentLayout').textContent = bookData.layout.charAt(0).toUpperCase() + bookData.layout.slice(1);
-            document.getElementById('currentOrientation').textContent = bookData.orientation.charAt(0).toUpperCase() + bookData.orientation.slice(1);
-            document.getElementById('totalPagesIndicator').textContent = bookData.numPages;
+            // Update info elements if they exist (optional)
+            const totalPagesEl = document.getElementById('totalPages');
+            const currentLayoutEl = document.getElementById('currentLayout');
+            const currentOrientationEl = document.getElementById('currentOrientation');
+            const totalPagesIndicatorEl = document.getElementById('totalPagesIndicator');
+
+            if (totalPagesEl) totalPagesEl.textContent = bookData.numPages;
+            if (currentLayoutEl) currentLayoutEl.textContent = bookData.layout.charAt(0).toUpperCase() + bookData.layout.slice(1);
+            if (currentOrientationEl) currentOrientationEl.textContent = bookData.orientation.charAt(0).toUpperCase() + bookData.orientation.slice(1);
+            if (totalPagesIndicatorEl) totalPagesIndicatorEl.textContent = bookData.numPages;
 
             // Initialize modules
             // UIManager.init(); // Disabled - using fixed bottom nav instead of swipe bottom sheet
