@@ -40,6 +40,13 @@ const GridLayout = (function() {
             });
         }
 
+        const photoFitSelect = document.getElementById('gridPhotoFit');
+        if (photoFitSelect) {
+            photoFitSelect.addEventListener('change', (e) => {
+                setPhotoFit(e.target.value);
+            });
+        }
+
         const spacingInput = document.getElementById('gridSpacing');
         if (spacingInput) {
             spacingInput.addEventListener('input', (e) => {
@@ -107,6 +114,13 @@ const GridLayout = (function() {
         renderCurrentPage();
     }
 
+    function setPhotoFit(fit) {
+        const page = bookData.pages[currentPageIndex];
+        page.photoFit = fit || 'cover';
+        saveBookData();
+        renderCurrentPage();
+    }
+
     function getGridRows() {
         return bookData.pages[currentPageIndex].gridRows || 2;
     }
@@ -126,6 +140,9 @@ const GridLayout = (function() {
 
         const colsInput = document.getElementById('gridCols');
         if (colsInput) colsInput.value = page.gridCols || 2;
+
+        const photoFitSelect = document.getElementById('gridPhotoFit');
+        if (photoFitSelect) photoFitSelect.value = page.photoFit || 'cover';
 
         const spacingInput = document.getElementById('gridSpacing');
         if (spacingInput) spacingInput.value = page.gridSpacing || 20;
