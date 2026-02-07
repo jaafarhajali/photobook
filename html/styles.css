@@ -2154,48 +2154,182 @@ button:focus-visible,
         justify-content: center;
     }
 
+    /* ===== MOBILE TOUCH TARGETS (44x44px minimum) ===== */
+    .btn,
+    button,
+    .btn-header,
+    .btn-nav,
+    .btn-upload,
+    .layout-card,
+    .page-thumbnail,
+    .delete-image,
+    .rotation-handle,
+    .resize-handle,
+    .toolbar-btn {
+        min-width: 44px;
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+
+    /* ===== SIDEBAR TO BOTTOM SHEET ===== */
+    .design-workspace {
+        flex-direction: column;
+        position: relative;
+        padding: 15px;
+    }
+
+    .sidebar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        max-height: 70vh;
+        z-index: 1000;
+        transform: translateY(calc(100% - 60px));
+        transition: transform 0.3s ease;
+        box-shadow: 0 -10px 30px rgba(0,0,0,0.2);
+        border-radius: 20px 20px 0 0;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .sidebar.open {
+        transform: translateY(0);
+    }
+
+    /* Bottom sheet handle */
+    .sidebar::before {
+        content: '';
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 4px;
+        background: var(--text-muted);
+        border-radius: 2px;
+        z-index: 1;
+    }
+
+    .sidebar-section {
+        margin-bottom: 20px;
+    }
+
+    /* ===== CANVAS AREA ===== */
+    .canvas-area {
+        width: 100%;
+        margin-bottom: 80px;
+        padding: 10px;
+    }
+
+    .page-canvas {
+        transform-origin: top center;
+        max-width: 100%;
+    }
+
+    /* ===== PHOTO LIBRARY ===== */
     .photo-library-grid {
         grid-template-columns: repeat(3, 1fr);
         max-height: 150px;
     }
 
-    .page-thumbnail {
-        width: 60px;
+    .photo-library-item {
+        min-width: 60px;
+        min-height: 60px;
     }
 
+    /* ===== PAGE THUMBNAILS ===== */
+    .page-thumbnail {
+        width: 60px;
+        min-width: 60px;
+        min-height: 60px;
+    }
+
+    .page-thumbnail-strip {
+        padding: 10px 5px;
+    }
+
+    /* ===== ELEMENT TOOLBAR ===== */
     .element-toolbar {
         flex-direction: column;
         align-items: stretch;
+        bottom: 70px;
+        left: 10px;
+        right: 10px;
+        width: calc(100% - 20px);
     }
 
     .toolbar-group {
         justify-content: center;
         border-right: none !important;
         padding-right: 0 !important;
+        padding: 8px 0;
     }
 
+    .toolbar-btn {
+        min-width: 44px;
+        min-height: 44px;
+        padding: 10px;
+    }
+
+    /* ===== PAGE NAVIGATION ===== */
     .page-navigation {
         flex-direction: column;
         gap: 15px;
+        margin-bottom: 80px;
     }
 
     .btn-nav {
         width: 100%;
         justify-content: center;
+        min-height: 48px;
     }
 
     .page-indicator {
         order: -1;
+        font-size: 1.1rem;
+        padding: 10px;
     }
 
+    /* ===== MODALS & DIALOGS ===== */
+    .export-dialog,
+    .text-editor-modal {
+        width: 95%;
+        max-width: 95%;
+        margin: 10px;
+    }
+
+    /* ===== TOAST NOTIFICATIONS ===== */
     .toast-container {
         left: 15px;
         right: 15px;
-        bottom: 15px;
+        bottom: 75px;
     }
 
     .toast-notification {
         max-width: 100%;
+    }
+
+    /* ===== FORM CONTROLS ===== */
+    .form-control,
+    .form-select,
+    input[type="number"],
+    input[type="text"],
+    input[type="color"] {
+        min-height: 44px;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+
+    textarea {
+        min-height: 88px;
+        font-size: 16px;
+    }
+
+    /* ===== TAB NAVIGATION ===== */
+    .nav-pills .nav-link {
+        min-height: 44px;
+        padding: 12px 15px;
     }
 }
 
