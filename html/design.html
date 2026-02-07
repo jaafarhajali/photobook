@@ -426,33 +426,48 @@
             });
 
             // Background controls
-            document.getElementById('bgColor').addEventListener('change', function() {
-                bookData.pages[currentPageIndex].backgroundColor = this.value;
-                document.getElementById('colorValue').textContent = this.value;
-                saveBookData();
-                renderCurrentPage();
-                PageManager.renderThumbnailStrip();
-            });
+            const bgColorEl = document.getElementById('bgColor');
+            if (bgColorEl) {
+                bgColorEl.addEventListener('change', function() {
+                    bookData.pages[currentPageIndex].backgroundColor = this.value;
+                    const colorValueEl = document.getElementById('colorValue');
+                    if (colorValueEl) colorValueEl.textContent = this.value;
+                    saveBookData();
+                    renderCurrentPage();
+                    PageManager.renderThumbnailStrip();
+                });
+            }
 
-            document.getElementById('bgPattern').addEventListener('change', function() {
-                bookData.pages[currentPageIndex].bgPattern = this.value;
-                saveBookData();
-                renderCurrentPage();
-            });
+            const bgPatternEl = document.getElementById('bgPattern');
+            if (bgPatternEl) {
+                bgPatternEl.addEventListener('change', function() {
+                    bookData.pages[currentPageIndex].bgPattern = this.value;
+                    saveBookData();
+                    renderCurrentPage();
+                });
+            }
 
             // Auto arrange button
-            document.getElementById('autoArrangeBtn').addEventListener('click', function() {
-                GridLayout.autoArrangeImages();
-            });
+            const autoArrangeBtnEl = document.getElementById('autoArrangeBtn');
+            if (autoArrangeBtnEl) {
+                autoArrangeBtnEl.addEventListener('click', function() {
+                    GridLayout.autoArrangeImages();
+                });
+            }
 
             // Rotation value input
-            document.getElementById('rotationValue').addEventListener('change', function() {
-                FreeLayout.setRotation(parseInt(this.value) || 0);
-            });
+            const rotationValueEl = document.getElementById('rotationValue');
+            if (rotationValueEl) {
+                rotationValueEl.addEventListener('change', function() {
+                    FreeLayout.setRotation(parseInt(this.value) || 0);
+                });
+            }
 
             // Navigation
-            document.getElementById('prevBtn').addEventListener('click', previousPage);
-            document.getElementById('nextBtn').addEventListener('click', nextPage);
+            const prevBtnEl = document.getElementById('prevBtn');
+            const nextBtnEl = document.getElementById('nextBtn');
+            if (prevBtnEl) prevBtnEl.addEventListener('click', previousPage);
+            if (nextBtnEl) nextBtnEl.addEventListener('click', nextPage);
 
             // Drag and drop on upload area
             setupDragDrop();
@@ -460,7 +475,12 @@
 
         // Setup drag and drop for library upload
         function setupDragDrop() {
-            const uploadLabel = document.querySelector('.btn-upload');
+            const uploadLabel = document.querySelector('.btn-add');
+
+            if (!uploadLabel) {
+                console.log('Upload button not found, skipping drag-drop setup');
+                return;
+            }
 
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                 uploadLabel.addEventListener(eventName, (e) => {
@@ -655,16 +675,25 @@
                 });
             }
 
-            // Update page info
-            document.getElementById('currentPageNumber').textContent = currentPageIndex + 1;
-            document.getElementById('pageIndicator').textContent = currentPageIndex + 1;
-            document.getElementById('elementCount').textContent = (page.images?.length || 0) + (page.textBlocks?.length || 0);
-            document.getElementById('libraryCount').textContent = bookData.photoLibrary?.length || 0;
+            // Update page info (optional elements)
+            const currentPageNumberEl = document.getElementById('currentPageNumber');
+            const pageIndicatorEl = document.getElementById('pageIndicator');
+            const elementCountEl = document.getElementById('elementCount');
+            const libraryCountEl = document.getElementById('libraryCount');
 
-            // Update controls
-            document.getElementById('bgColor').value = page.backgroundColor || '#ffffff';
-            document.getElementById('colorValue').textContent = page.backgroundColor || '#ffffff';
-            document.getElementById('bgPattern').value = page.bgPattern || 'none';
+            if (currentPageNumberEl) currentPageNumberEl.textContent = currentPageIndex + 1;
+            if (pageIndicatorEl) pageIndicatorEl.textContent = currentPageIndex + 1;
+            if (elementCountEl) elementCountEl.textContent = (page.images?.length || 0) + (page.textBlocks?.length || 0);
+            if (libraryCountEl) libraryCountEl.textContent = bookData.photoLibrary?.length || 0;
+
+            // Update controls (optional elements)
+            const bgColorEl = document.getElementById('bgColor');
+            const colorValueEl = document.getElementById('colorValue');
+            const bgPatternEl = document.getElementById('bgPattern');
+
+            if (bgColorEl) bgColorEl.value = page.backgroundColor || '#ffffff';
+            if (colorValueEl) colorValueEl.textContent = page.backgroundColor || '#ffffff';
+            if (bgPatternEl) bgPatternEl.value = page.bgPattern || 'none';
 
             // Update grid controls
             GridLayout.updateControls();
@@ -715,8 +744,11 @@
         }
 
         function updateNavigationButtons() {
-            document.getElementById('prevBtn').disabled = currentPageIndex === 0;
-            document.getElementById('nextBtn').disabled = currentPageIndex === bookData.numPages - 1;
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            if (prevBtn) prevBtn.disabled = currentPageIndex === 0;
+            if (nextBtn) nextBtn.disabled = currentPageIndex === bookData.numPages - 1;
 
             // Update page counter in header
             const pageCounter = document.getElementById('pageCounter');
