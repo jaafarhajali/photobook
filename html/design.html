@@ -53,47 +53,50 @@
         </div>
 
         <div class="design-workspace">
-            <!-- Left Sidebar -->
+            <!-- Left Sidebar (Desktop) / Bottom Panel Container (Mobile) -->
             <div class="sidebar">
-                <!-- Photo Library Section -->
-                <div class="sidebar-section photo-library-section">
-                    <div class="sidebar-section-title">
-                        <i class="fas fa-images"></i> Photo Library
-                        <span class="badge bg-secondary ms-auto" id="libraryPhotoCount">0</span>
-                    </div>
-                    <label for="libraryUpload" class="btn-upload compact">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <span>Upload Photos</span>
-                    </label>
-                    <input type="file" id="libraryUpload" multiple accept="image/*" class="hidden">
-                    <div class="photo-library-grid" id="photoLibraryGrid">
-                        <p class="text-muted small text-center py-3">No photos yet. Upload some photos to get started.</p>
-                    </div>
+                <!-- Mobile Bottom Navigation Bar -->
+                <div class="mobile-bottom-nav">
+                    <button class="bottom-nav-item active" data-tab="photos">
+                        <i class="fas fa-images"></i>
+                        <span>Photos</span>
+                    </button>
+                    <button class="bottom-nav-item" data-tab="layout">
+                        <i class="fas fa-th-large"></i>
+                        <span>Layout</span>
+                    </button>
+                    <button class="bottom-nav-item" data-tab="text">
+                        <i class="fas fa-font"></i>
+                        <span>Text</span>
+                    </button>
+                    <button class="bottom-nav-item" data-tab="style">
+                        <i class="fas fa-palette"></i>
+                        <span>Style</span>
+                    </button>
                 </div>
 
-                <!-- Tab Navigation -->
-                <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="pills-layout-tab" data-bs-toggle="pill" data-bs-target="#pills-layout" type="button">
-                            <i class="fas fa-th-large"></i> <span class="d-none d-sm-inline">Layout</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="pills-text-tab" data-bs-toggle="pill" data-bs-target="#pills-text" type="button">
-                            <i class="fas fa-font"></i> <span class="d-none d-sm-inline">Text</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="pills-style-tab" data-bs-toggle="pill" data-bs-target="#pills-style" type="button">
-                            <i class="fas fa-palette"></i> <span class="d-none d-sm-inline">Style</span>
-                        </button>
-                    </li>
-                </ul>
+                <!-- Tab Content Container -->
+                <div class="bottom-nav-content">
+                    <!-- Photos Tab -->
+                    <div class="bottom-nav-panel active" id="panel-photos">
+                        <div class="sidebar-section photo-library-section">
+                            <div class="sidebar-section-title">
+                                <i class="fas fa-images"></i> Photo Library
+                                <span class="badge bg-secondary ms-auto" id="libraryPhotoCount">0</span>
+                            </div>
+                            <label for="libraryUpload" class="btn-upload compact">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Upload Photos</span>
+                            </label>
+                            <input type="file" id="libraryUpload" multiple accept="image/*" class="hidden">
+                            <div class="photo-library-grid" id="photoLibraryGrid">
+                                <p class="text-muted small text-center py-3">No photos yet. Upload some photos to get started.</p>
+                            </div>
+                        </div>
+                    </div>
 
-                <!-- Tab Content -->
-                <div class="tab-content" id="pills-tabContent">
                     <!-- Layout Tab -->
-                    <div class="tab-pane fade show active" id="pills-layout" role="tabpanel">
+                    <div class="bottom-nav-panel" id="panel-layout">
                         <div class="sidebar-section">
                             <div class="sidebar-section-title">
                                 <i class="fas fa-sliders-h"></i> Layout Mode
@@ -166,7 +169,7 @@
                     </div>
 
                     <!-- Text Tab -->
-                    <div class="tab-pane fade" id="pills-text" role="tabpanel">
+                    <div class="bottom-nav-panel" id="panel-text">
                         <div class="sidebar-section">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div class="sidebar-section-title mb-0">
@@ -300,7 +303,7 @@
                     </div>
 
                     <!-- Style Tab -->
-                    <div class="tab-pane fade" id="pills-style" role="tabpanel">
+                    <div class="bottom-nav-panel" id="panel-style">
                         <div class="sidebar-section">
                             <div class="sidebar-section-title">
                                 <i class="fas fa-fill-drip"></i> Page Background
@@ -477,7 +480,7 @@
             document.getElementById('totalPagesIndicator').textContent = bookData.numPages;
 
             // Initialize modules
-            UIManager.init();
+            // UIManager.init(); // Disabled - using fixed bottom nav instead of swipe bottom sheet
             TouchGestures.init();
             PageManager.init();
             PhotoLibrary.init();
@@ -491,8 +494,49 @@
             updateNavigationButtons();
         }
 
+        // Setup Bottom Navigation
+        function setupBottomNavigation() {
+            const navItems = document.querySelectorAll('.bottom-nav-item');
+            const panels = document.querySelectorAll('.bottom-nav-panel');
+
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const targetTab = this.getAttribute('data-tab');
+
+                    // Remove active class from all nav items and panels
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    panels.forEach(panel => panel.classList.remove('active'));
+
+                    // Add active class to clicked nav item
+                    this.classList.add('active');
+
+                    // Show corresponding panel
+                    const targetPanel = document.getElementById('panel-' + targetTab);
+                    if (targetPanel) {
+                        targetPanel.classList.add('active');
+                    }
+
+                    // If switching to text tab and a text block is selected, show editor
+                    if (targetTab === 'text' && selectedTextBlockIndex !== null) {
+                        document.getElementById('textEditor').style.display = 'block';
+                    }
+                });
+            });
+        }
+
+        // Helper function to switch tabs programmatically
+        function switchToTab(tabName) {
+            const targetButton = document.querySelector(`.bottom-nav-item[data-tab="${tabName}"]`);
+            if (targetButton) {
+                targetButton.click();
+            }
+        }
+
         // Setup event listeners
         function setupEventListeners() {
+            // Bottom Navigation Tab Switching
+            setupBottomNavigation();
+
             // Library upload
             document.getElementById('libraryUpload').addEventListener('change', function(e) {
                 PhotoLibrary.uploadPhotos(e.target.files);
@@ -766,7 +810,7 @@
                     textDiv.onclick = (e) => {
                         if (!e.target.classList.contains('rotation-handle')) {
                             TextEditor.selectTextBlock(index);
-                            document.getElementById('pills-text-tab').click();
+                            switchToTab('text');
                         }
                     };
 
@@ -913,7 +957,7 @@
             if (e.key === 't' && !e.ctrlKey && !e.metaKey) {
                 e.preventDefault();
                 TextEditor.addTextBlock();
-                document.getElementById('pills-text-tab').click();
+                switchToTab('text');
             }
 
             // G - Toggle grid/free mode
