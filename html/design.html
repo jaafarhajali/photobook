@@ -41,10 +41,18 @@
             </button>
             <div class="header-center">
                 <h1 class="header-title">Design</h1>
-                <span class="page-counter" id="pageCounter">Page 1 / 10</span>
             </div>
             <button class="btn-header-icon btn-export-icon" id="exportBtn" title="Export PDF">
                 <i class="fas fa-download"></i>
+            </button>
+        </div>
+
+        <!-- Page Info Bar -->
+        <div class="page-info-bar">
+            <span class="page-counter-large" id="pageCounter">Page 1 / 10</span>
+            <button class="btn-add-page" onclick="PageManager.addPage()">
+                <i class="fas fa-plus"></i>
+                <span>Add Page</span>
             </button>
         </div>
 
@@ -54,19 +62,6 @@
                 <div id="imageContainer" class="image-grid classic"></div>
                 <div id="textContainer"></div>
             </div>
-        </div>
-
-        <!-- Page Navigation Bar -->
-        <div class="page-nav-bar">
-            <button class="btn-page-nav" id="prevBtn" disabled>
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <div class="page-thumbnails-compact" id="pageThumbnailStrip">
-                <!-- Populated by PageManager -->
-            </div>
-            <button class="btn-page-nav" id="nextBtn">
-                <i class="fas fa-chevron-right"></i>
-            </button>
         </div>
 
         <!-- Element Toolbar (Floating when element selected) -->

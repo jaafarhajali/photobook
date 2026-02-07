@@ -86,11 +86,6 @@ const PageManager = (function() {
 
         thumbnail.appendChild(preview);
 
-        const label = document.createElement('div');
-        label.className = 'thumbnail-label';
-        label.textContent = `Page ${index + 1}`;
-        thumbnail.appendChild(label);
-
         // Duplicate button
         const dupBtn = document.createElement('button');
         dupBtn.className = 'thumbnail-duplicate';
