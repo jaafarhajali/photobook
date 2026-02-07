@@ -34,21 +34,18 @@
 
     <!-- Design Screen -->
     <div id="designScreen" class="design-screen">
-        <div class="design-header">
-            <div class="container-fluid px-4">
-                <div class="design-header-content">
-                    <h2 class="design-title">
-                        <i class="fas fa-book-open me-2"></i> My Photo Book
-                    </h2>
-                    <div class="header-actions">
-                        <button class="btn btn-header" onclick="window.location.href='setup.html'">
-                            <i class="fas fa-cog me-2"></i> Settings
-                        </button>
-                        <button class="btn btn-header btn-export" id="exportBtn">
-                            <i class="fas fa-download me-2"></i> Export PDF
-                        </button>
-                    </div>
-                </div>
+        <div class="design-header-modern">
+            <button class="btn-back" onclick="window.location.href='upload.html'">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 class="header-title">Design Book</h1>
+            <div class="header-actions-modern">
+                <button class="btn-header-icon" onclick="window.location.href='setup.html'" title="Settings">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <button class="btn-header-icon btn-export-icon" id="exportBtn" title="Export PDF">
+                    <i class="fas fa-download"></i>
+                </button>
             </div>
         </div>
 
@@ -79,101 +76,121 @@
                 <div class="bottom-nav-content">
                     <!-- Photos Tab -->
                     <div class="bottom-nav-panel active" id="panel-photos">
-                        <div class="sidebar-section photo-library-section">
-                            <div class="sidebar-section-title">
-                                <i class="fas fa-images"></i> Photo Library
-                                <span class="badge bg-secondary ms-auto" id="libraryPhotoCount">0</span>
+                        <div class="settings-card">
+                            <div class="card-label">
+                                <i class="fas fa-images"></i>
+                                <span>Photo Library</span>
+                                <span class="badge-count" id="libraryPhotoCount">0</span>
                             </div>
-                            <label for="libraryUpload" class="btn-upload compact">
-                                <i class="fas fa-cloud-upload-alt"></i>
-                                <span>Upload Photos</span>
+                            <label for="libraryUpload" class="btn-upload-modern">
+                                <i class="fas fa-cloud-upload-alt me-2"></i>
+                                <span>Upload More Photos</span>
                             </label>
                             <input type="file" id="libraryUpload" multiple accept="image/*" class="hidden">
-                            <div class="photo-library-grid" id="photoLibraryGrid">
-                                <p class="text-muted small text-center py-3">No photos yet. Upload some photos to get started.</p>
+                            <div class="photo-grid-modern mt-3" id="photoLibraryGrid">
+                                <div class="empty-state">
+                                    <div class="empty-icon">
+                                        <i class="fas fa-images"></i>
+                                    </div>
+                                    <div class="empty-title">No photos yet</div>
+                                    <div class="empty-desc">Upload photos to get started</div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Layout Tab -->
                     <div class="bottom-nav-panel" id="panel-layout">
-                        <div class="sidebar-section">
-                            <div class="sidebar-section-title">
-                                <i class="fas fa-sliders-h"></i> Layout Mode
+                        <div class="settings-card">
+                            <div class="card-label">
+                                <i class="fas fa-sliders-h"></i>
+                                <span>Layout Mode</span>
                             </div>
-                            <div class="layout-mode-toggle mb-3">
-                                <div class="btn-group w-100" role="group">
-                                    <input type="radio" class="btn-check" name="layoutMode" id="layoutModeGrid" value="grid" checked>
-                                    <label class="btn btn-outline-primary" for="layoutModeGrid">
-                                        <i class="fas fa-th-large"></i> Grid
-                                    </label>
-                                    <input type="radio" class="btn-check" name="layoutMode" id="layoutModeFree" value="free">
-                                    <label class="btn btn-outline-primary" for="layoutModeFree">
-                                        <i class="fas fa-arrows-alt"></i> Free
-                                    </label>
+                            <div class="layout-mode-toggle-modern">
+                                <input type="radio" class="btn-check-modern" name="layoutMode" id="layoutModeGrid" value="grid" checked>
+                                <label class="mode-toggle-btn" for="layoutModeGrid">
+                                    <i class="fas fa-th-large"></i>
+                                    <span>Grid</span>
+                                </label>
+                                <input type="radio" class="btn-check-modern" name="layoutMode" id="layoutModeFree" value="free">
+                                <label class="mode-toggle-btn" for="layoutModeFree">
+                                    <i class="fas fa-arrows-alt"></i>
+                                    <span>Free</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Grid Settings -->
+                        <div class="settings-card" id="gridSettings">
+                            <div class="card-label">
+                                <i class="fas fa-th-large"></i>
+                                <span>Grid Settings</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="input-label">Grid Template</label>
+                                <select class="form-input" id="gridTemplateSelector">
+                                    <option value="1x1">Single (1×1)</option>
+                                    <option value="1x2">2 Horizontal (1×2)</option>
+                                    <option value="2x1">2 Vertical (2×1)</option>
+                                    <option value="2x2" selected>4 Grid (2×2)</option>
+                                    <option value="2x3">6 Grid (2×3)</option>
+                                    <option value="3x2">6 Grid (3×2)</option>
+                                    <option value="3x3">9 Grid (3×3)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="input-label">Rows</label>
+                                    <input type="number" class="form-input" id="gridRows" min="1" max="6" value="2">
+                                </div>
+                                <div class="form-group">
+                                    <label class="input-label">Columns</label>
+                                    <input type="number" class="form-input" id="gridCols" min="1" max="6" value="2">
                                 </div>
                             </div>
 
-                            <!-- Grid Settings -->
-                            <div id="gridSettings">
-                                <div class="mb-3">
-                                    <label class="form-label small">Grid Template</label>
-                                    <select class="form-select form-select-sm" id="gridTemplateSelector">
-                                        <option value="1x1">Single (1×1)</option>
-                                        <option value="1x2">2 Horizontal (1×2)</option>
-                                        <option value="2x1">2 Vertical (2×1)</option>
-                                        <option value="2x2" selected>4 Grid (2×2)</option>
-                                        <option value="2x3">6 Grid (2×3)</option>
-                                        <option value="3x2">6 Grid (3×2)</option>
-                                        <option value="3x3">9 Grid (3×3)</option>
-                                    </select>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-6">
-                                        <label class="form-label small">Rows</label>
-                                        <input type="number" class="form-control form-control-sm" id="gridRows" min="1" max="6" value="2">
-                                    </div>
-                                    <div class="col-6">
-                                        <label class="form-label small">Columns</label>
-                                        <input type="number" class="form-control form-control-sm" id="gridCols" min="1" max="6" value="2">
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label small">Cell Spacing</label>
-                                    <input type="range" class="form-range" id="gridSpacing" min="0" max="50" value="20">
-                                    <small class="text-muted"><span id="gridSpacingValue">20</span>px</small>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label small">Padding</label>
-                                    <input type="range" class="form-range" id="gridPadding" min="0" max="50" value="40">
-                                    <small class="text-muted"><span id="gridPaddingValue">40</span>px</small>
-                                </div>
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" id="snapToGrid" checked>
-                                    <label class="form-check-label small" for="snapToGrid">
-                                        Snap to grid
-                                    </label>
-                                </div>
-                                <button class="btn btn-sm btn-outline-secondary w-100" id="autoArrangeBtn">
-                                    <i class="fas fa-magic"></i> Auto Arrange
-                                </button>
+                            <div class="form-group">
+                                <label class="input-label">Cell Spacing</label>
+                                <input type="range" class="form-range" id="gridSpacing" min="0" max="50" value="20">
+                                <div class="range-value"><span id="gridSpacingValue">20</span>px</div>
                             </div>
 
-                            <!-- Free Mode Settings -->
-                            <div id="freeModeSettings" style="display: none;">
-                                <div class="alert alert-info small py-2">
-                                    <i class="fas fa-info-circle"></i> Drag elements freely on the canvas. Use handles to resize and rotate.
-                                </div>
+                            <div class="form-group">
+                                <label class="input-label">Padding</label>
+                                <input type="range" class="form-range" id="gridPadding" min="0" max="50" value="40">
+                                <div class="range-value"><span id="gridPaddingValue">40</span>px</div>
+                            </div>
+
+                            <div class="form-check-modern">
+                                <input class="form-check-input-modern" type="checkbox" id="snapToGrid" checked>
+                                <label class="form-check-label-modern" for="snapToGrid">
+                                    <i class="fas fa-grip-vertical me-2"></i>Snap to grid
+                                </label>
+                            </div>
+
+                            <button class="btn-secondary-large mt-3" id="autoArrangeBtn">
+                                <i class="fas fa-magic me-2"></i>Auto Arrange
+                            </button>
+                        </div>
+
+                        <!-- Free Mode Settings -->
+                        <div class="settings-card" id="freeModeSettings" style="display: none;">
+                            <div class="info-box">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <span>Drag elements freely on the canvas. Use handles to resize and rotate.</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Text Tab -->
                     <div class="bottom-nav-panel" id="panel-text">
-                        <div class="sidebar-section">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <div class="sidebar-section-title mb-0">
-                                    <i class="fas fa-text-height"></i> Text Blocks
+                        <div class="settings-card">
+                            <div class="d-flex justify-content-between align-items-center" style="margin-bottom: 12px;">
+                                <div class="card-label mb-0">
+                                    <i class="fas fa-text-height"></i>
+                                    <span>Text Blocks</span>
                                 </div>
                                 <button class="btn btn-sm btn-primary" id="addTextBtn">
                                     <i class="fas fa-plus"></i>
@@ -182,7 +199,7 @@
                             <div id="textBlocksList"></div>
                         </div>
 
-                        <div class="sidebar-section" id="textEditor" style="display: none;">
+                        <div class="settings-card" id="textEditor" style="display: none;">
                             <div class="sidebar-section-title">
                                 <i class="fas fa-edit"></i> Edit Text
                             </div>
@@ -304,9 +321,10 @@
 
                     <!-- Style Tab -->
                     <div class="bottom-nav-panel" id="panel-style">
-                        <div class="sidebar-section">
-                            <div class="sidebar-section-title">
-                                <i class="fas fa-fill-drip"></i> Page Background
+                        <div class="settings-card">
+                            <div class="card-label">
+                                <i class="fas fa-fill-drip"></i>
+                                <span>Page Background</span>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label small">Background Color</label>
@@ -326,9 +344,10 @@
                             </div>
                         </div>
 
-                        <div class="sidebar-section">
-                            <div class="sidebar-section-title">
-                                <i class="fas fa-info-circle"></i> Book Info
+                        <div class="settings-card">
+                            <div class="card-label">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Book Info</span>
                             </div>
                             <div class="text-muted small">
                                 <div class="mb-2"><strong>Total Pages:</strong> <span id="totalPages">0</span></div>
@@ -339,9 +358,10 @@
                             </div>
                         </div>
 
-                        <div class="sidebar-section">
-                            <div class="sidebar-section-title">
-                                <i class="fas fa-tools"></i> Page Actions
+                        <div class="settings-card">
+                            <div class="card-label">
+                                <i class="fas fa-tools"></i>
+                                <span>Page Actions</span>
                             </div>
                             <div class="d-grid gap-2">
                                 <button class="btn btn-sm btn-outline-primary" onclick="PageManager.duplicatePage(currentPageIndex)">
