@@ -227,7 +227,10 @@ const PhotoLibrary = (function() {
         });
 
         canvas.addEventListener('dragleave', (e) => {
-            if (!canvas.contains(e.relatedTarget)) {
+            // Check if mouse left canvas entirely (not just moved to child element)
+            const rect = canvas.getBoundingClientRect();
+            if (e.clientX < rect.left || e.clientX >= rect.right ||
+                e.clientY < rect.top || e.clientY >= rect.bottom) {
                 canvas.classList.remove('drop-target');
             }
         });

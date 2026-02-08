@@ -170,12 +170,14 @@ const PDFExport = (function() {
 
             const pageCanvas = document.getElementById('pageCanvas');
 
-            // Hide UI elements
+            // Hide UI elements and store selected state
             pageCanvas.querySelectorAll('.delete-image, .rotation-handle, .resize-handle').forEach(el => {
                 el.style.visibility = 'hidden';
             });
-            pageCanvas.querySelectorAll('.selected, .editing').forEach(el => {
+            const selectedElements = Array.from(pageCanvas.querySelectorAll('.selected, .editing'));
+            selectedElements.forEach(el => {
                 el.classList.remove('selected', 'editing');
+                el.dataset.wasSelected = 'true'; // Mark for restoration
             });
 
             const canvas = await html2canvas(pageCanvas, {
@@ -185,9 +187,15 @@ const PDFExport = (function() {
                 backgroundColor: bookData.pages[i].backgroundColor || '#ffffff'
             });
 
-            // Restore UI elements
+            // Restore UI elements and selection state
             pageCanvas.querySelectorAll('.delete-image, .rotation-handle, .resize-handle').forEach(el => {
                 el.style.visibility = '';
+            });
+            selectedElements.forEach(el => {
+                if (el.dataset.wasSelected === 'true') {
+                    el.classList.add('selected');
+                    delete el.dataset.wasSelected;
+                }
             });
 
             const imgData = canvas.toDataURL('image/jpeg', 0.95);

@@ -17,9 +17,9 @@ const FreeLayout = (function() {
         setupKeyboardShortcuts();
         createAlignmentGuides();
 
-        // Enable touch gestures on mobile
-        if (TouchGestures && TouchGestures.isTouchDevice()) {
-            console.log('FreeLayout: Enabling touch gestures for mobile');
+        // Enable touch gestures if module available
+        if (TouchGestures) {
+            console.log('FreeLayout: Enabling touch gestures');
             setupTouchGestures();
         }
     }
@@ -257,6 +257,13 @@ const FreeLayout = (function() {
         domElement.classList.add('selected');
         selectedElement = domElement;
         showElementToolbar();
+
+        // Update rotation input to show current rotation
+        const currentRotation = parseFloat(domElement.getAttribute('data-rotation')) || 0;
+        const rotationInput = document.getElementById('rotationValue');
+        if (rotationInput) {
+            rotationInput.value = Math.round(currentRotation);
+        }
     }
 
     function selectElement(elementId) {
@@ -338,8 +345,17 @@ const FreeLayout = (function() {
 
     function sendToBack() {
         if (!selectedElement) return;
-        selectedElement.style.zIndex = 1;
-        saveElementZIndex(1);
+        const elements = document.querySelectorAll('.free-positioned');
+        let minZ = 999999;
+        elements.forEach(el => {
+            if (el !== selectedElement) {
+                const z = parseInt(el.style.zIndex) || 0;
+                if (z < minZ) minZ = z;
+            }
+        });
+        const newZ = Math.max(0, minZ - 1);
+        selectedElement.style.zIndex = newZ;
+        saveElementZIndex(newZ);
     }
 
     function saveElementZIndex(zIndex) {
@@ -492,7 +508,7 @@ const FreeLayout = (function() {
             setupInteract();
 
             // Re-enable touch gestures
-            if (TouchGestures && TouchGestures.isTouchDevice()) {
+            if (TouchGestures) {
                 setupTouchGestures();
             }
         }
