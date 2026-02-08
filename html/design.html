@@ -143,9 +143,23 @@
                             <div class="setting-group">
                                 <label>Template</label>
                                 <select class="setting-input" id="gridTemplateSelector">
-                                    <option value="1x1">1×1</option>
-                                    <option value="2x2" selected>2×2</option>
-                                    <option value="3x3">3×3</option>
+                                    <optgroup label="Simple Grids">
+                                        <option value="1x1">Single</option>
+                                        <option value="1x2">2 Horizontal</option>
+                                        <option value="2x1">2 Vertical</option>
+                                        <option value="2x2" selected>4 Grid (2x2)</option>
+                                        <option value="2x3">6 Grid (2x3)</option>
+                                        <option value="3x2">6 Grid (3x2)</option>
+                                        <option value="3x3">9 Grid (3x3)</option>
+                                    </optgroup>
+                                    <optgroup label="Designed Layouts">
+                                        <option value="hero-top">Hero Top + 2</option>
+                                        <option value="hero-left">Hero Left + 2</option>
+                                        <option value="hero-right">Hero Right + 2</option>
+                                        <option value="strip-3">3 Strip</option>
+                                        <option value="big-3bottom">Big + 3 Bottom</option>
+                                        <option value="mosaic">Mosaic</option>
+                                    </optgroup>
                                 </select>
                             </div>
                             <div class="setting-row">
@@ -561,6 +575,9 @@
 
             // Render images
             imageContainer.innerHTML = '';
+            const templateDef = GridLayout.getTemplate(page.gridTemplate);
+            const hasCells = templateDef && templateDef.cells;
+
             page.images.forEach((imageData, index) => {
                 const imgDiv = document.createElement('div');
                 imgDiv.className = 'uploaded-image';
@@ -601,8 +618,15 @@
                     `;
                 } else {
                     // Grid mode - add photo fit class
-                    const photoFit = page.photoFit || 'cover';
+                    const photoFit = page.photoFit || 'contain';
                     imgDiv.classList.add(`fit-${photoFit}`);
+
+                    // Apply grid cell span for complex templates
+                    if (hasCells && index < templateDef.cells.length) {
+                        const cell = templateDef.cells[index];
+                        imgDiv.style.gridColumn = `${cell.col} / span ${cell.colSpan}`;
+                        imgDiv.style.gridRow = `${cell.row} / span ${cell.rowSpan}`;
+                    }
 
                     const src = typeof imageData === 'string' ? imageData : imageData.src;
                     imgDiv.innerHTML = `
@@ -615,6 +639,51 @@
 
                 imageContainer.appendChild(imgDiv);
             });
+
+            // Add empty cell placeholders in grid mode
+            if (!isFreeMode) {
+                const maxSlots = hasCells
+                    ? templateDef.cells.length
+                    : (page.gridRows || 2) * (page.gridCols || 2);
+                const emptyCount = maxSlots - page.images.length;
+
+                for (let i = 0; i < emptyCount; i++) {
+                    const emptyDiv = document.createElement('div');
+                    emptyDiv.className = 'grid-cell-empty';
+
+                    // Apply cell span for complex template empty slots
+                    if (hasCells) {
+                        const slotIndex = page.images.length + i;
+                        if (slotIndex < templateDef.cells.length) {
+                            const cell = templateDef.cells[slotIndex];
+                            emptyDiv.style.gridColumn = `${cell.col} / span ${cell.colSpan}`;
+                            emptyDiv.style.gridRow = `${cell.row} / span ${cell.rowSpan}`;
+                        }
+                    }
+
+                    emptyDiv.innerHTML = '<i class="fas fa-plus"></i>';
+                    emptyDiv.addEventListener('click', () => {
+                        switchToTab('photos');
+                    });
+                    imageContainer.appendChild(emptyDiv);
+                }
+            }
+
+            // Show empty page state if no content in free mode
+            const hasContent = page.images.length > 0 || (page.textBlocks && page.textBlocks.length > 0);
+            const existingEmptyState = canvas.querySelector('.empty-page-state');
+            if (existingEmptyState) existingEmptyState.remove();
+
+            if (!hasContent && isFreeMode) {
+                const emptyState = document.createElement('div');
+                emptyState.className = 'empty-page-state';
+                emptyState.innerHTML = `
+                    <i class="fas fa-images"></i>
+                    <p>Drag photos here</p>
+                    <span>or double-click a photo in the library</span>
+                `;
+                canvas.appendChild(emptyState);
+            }
 
             // Render text blocks
             textContainer.innerHTML = '';

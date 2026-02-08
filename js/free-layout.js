@@ -105,7 +105,7 @@ const FreeLayout = (function() {
                 },
                 modifiers: [
                     interact.modifiers.restrictSize({
-                        min: { width: 50, height: 50 }
+                        min: { width: 100, height: 100 }
                     }),
                     interact.modifiers.aspectRatio({
                         ratio: 'preserve'
@@ -306,12 +306,12 @@ const FreeLayout = (function() {
 
     function showElementToolbar() {
         const toolbar = document.getElementById('elementToolbar');
-        if (toolbar) toolbar.classList.add('visible');
+        if (toolbar) toolbar.classList.add('active');
     }
 
     function hideElementToolbar() {
         const toolbar = document.getElementById('elementToolbar');
-        if (toolbar) toolbar.classList.remove('visible');
+        if (toolbar) toolbar.classList.remove('active');
     }
 
     function updatePositionDisplay(x, y) {
@@ -400,19 +400,19 @@ const FreeLayout = (function() {
                     break;
                 case 'ArrowUp':
                     e.preventDefault();
-                    nudgeElement(0, e.shiftKey ? -10 : -1);
+                    nudgeElement(0, e.shiftKey ? -20 : -5);
                     break;
                 case 'ArrowDown':
                     e.preventDefault();
-                    nudgeElement(0, e.shiftKey ? 10 : 1);
+                    nudgeElement(0, e.shiftKey ? 20 : 5);
                     break;
                 case 'ArrowLeft':
                     e.preventDefault();
-                    nudgeElement(e.shiftKey ? -10 : -1, 0);
+                    nudgeElement(e.shiftKey ? -20 : -5, 0);
                     break;
                 case 'ArrowRight':
                     e.preventDefault();
-                    nudgeElement(e.shiftKey ? 10 : 1, 0);
+                    nudgeElement(e.shiftKey ? 20 : 5, 0);
                     break;
             }
         });

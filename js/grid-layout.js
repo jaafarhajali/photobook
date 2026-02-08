@@ -5,13 +5,65 @@
 
 const GridLayout = (function() {
     const templates = {
+        // Simple grid templates (auto-flow, no cell spanning)
         '1x1': { rows: 1, cols: 1, name: 'Single' },
         '1x2': { rows: 1, cols: 2, name: '2 Horizontal' },
         '2x1': { rows: 2, cols: 1, name: '2 Vertical' },
         '2x2': { rows: 2, cols: 2, name: '4 Grid' },
         '2x3': { rows: 2, cols: 3, name: '6 Grid (2x3)' },
         '3x2': { rows: 3, cols: 2, name: '6 Grid (3x2)' },
-        '3x3': { rows: 3, cols: 3, name: '9 Grid' }
+        '3x3': { rows: 3, cols: 3, name: '9 Grid' },
+
+        // Designed layout templates (with cell spanning)
+        'hero-top': {
+            rows: 2, cols: 2, name: 'Hero Top + 2',
+            cells: [
+                { row: 1, col: 1, rowSpan: 1, colSpan: 2 },
+                { row: 2, col: 1, rowSpan: 1, colSpan: 1 },
+                { row: 2, col: 2, rowSpan: 1, colSpan: 1 }
+            ]
+        },
+        'hero-left': {
+            rows: 2, cols: 2, name: 'Hero Left + 2',
+            cells: [
+                { row: 1, col: 1, rowSpan: 2, colSpan: 1 },
+                { row: 1, col: 2, rowSpan: 1, colSpan: 1 },
+                { row: 2, col: 2, rowSpan: 1, colSpan: 1 }
+            ]
+        },
+        'hero-right': {
+            rows: 2, cols: 2, name: 'Hero Right + 2',
+            cells: [
+                { row: 1, col: 1, rowSpan: 1, colSpan: 1 },
+                { row: 2, col: 1, rowSpan: 1, colSpan: 1 },
+                { row: 1, col: 2, rowSpan: 2, colSpan: 1 }
+            ]
+        },
+        'strip-3': {
+            rows: 1, cols: 3, name: '3 Strip',
+            cells: [
+                { row: 1, col: 1, rowSpan: 1, colSpan: 1 },
+                { row: 1, col: 2, rowSpan: 1, colSpan: 1 },
+                { row: 1, col: 3, rowSpan: 1, colSpan: 1 }
+            ]
+        },
+        'big-3bottom': {
+            rows: 2, cols: 3, name: 'Big + 3 Bottom',
+            cells: [
+                { row: 1, col: 1, rowSpan: 1, colSpan: 3 },
+                { row: 2, col: 1, rowSpan: 1, colSpan: 1 },
+                { row: 2, col: 2, rowSpan: 1, colSpan: 1 },
+                { row: 2, col: 3, rowSpan: 1, colSpan: 1 }
+            ]
+        },
+        'mosaic': {
+            rows: 2, cols: 3, name: 'Mosaic',
+            cells: [
+                { row: 1, col: 1, rowSpan: 2, colSpan: 2 },
+                { row: 1, col: 3, rowSpan: 1, colSpan: 1 },
+                { row: 2, col: 3, rowSpan: 1, colSpan: 1 }
+            ]
+        }
     };
 
     function init() {
@@ -77,6 +129,15 @@ const GridLayout = (function() {
         page.gridTemplate = templateKey;
         page.gridRows = template.rows;
         page.gridCols = template.cols;
+
+        // Validate image count against template slots
+        const maxSlots = getMaxSlots(templateKey);
+        if (page.images.length > maxSlots) {
+            const msg = `This template has ${maxSlots} slots but you have ${page.images.length} images. Extra images will not display.`;
+            if (confirm(msg + ' Remove extra images?')) {
+                page.images = page.images.slice(0, maxSlots);
+            }
+        }
 
         const rowsInput = document.getElementById('gridRows');
         const colsInput = document.getElementById('gridCols');
@@ -157,6 +218,17 @@ const GridLayout = (function() {
         if (paddingValue) paddingValue.textContent = (page.gridPadding || 40) + 'px';
     }
 
+    function getTemplate(key) {
+        return templates[key] || null;
+    }
+
+    function getMaxSlots(key) {
+        const tmpl = templates[key];
+        if (!tmpl) return 0;
+        if (tmpl.cells) return tmpl.cells.length;
+        return tmpl.rows * tmpl.cols;
+    }
+
     function autoArrangeImages() {
         const page = bookData.pages[currentPageIndex];
         if (page.layoutMode !== 'grid') {
@@ -164,9 +236,7 @@ const GridLayout = (function() {
             return;
         }
 
-        const rows = page.gridRows || 2;
-        const cols = page.gridCols || 2;
-        const maxCells = rows * cols;
+        const maxCells = getMaxSlots(page.gridTemplate) || (page.gridRows || 2) * (page.gridCols || 2);
 
         // Get images from library if current page has fewer images than cells
         if (page.images.length < maxCells && bookData.photoLibrary && bookData.photoLibrary.length > 0) {
@@ -182,7 +252,7 @@ const GridLayout = (function() {
         // If we have more images than cells, trim to fit
         if (page.images.length > maxCells) {
             const overflow = page.images.length - maxCells;
-            if (confirm(`You have ${page.images.length} images but only ${maxCells} cells. Remove ${overflow} image(s) to fit the grid?`)) {
+            if (confirm(`You have ${page.images.length} images but only ${maxCells} slots. Remove ${overflow} image(s) to fit the layout?`)) {
                 page.images = page.images.slice(0, maxCells);
             }
         }
@@ -190,10 +260,14 @@ const GridLayout = (function() {
         // Convert all images to simple string format for grid mode
         page.images = page.images.map(img => typeof img === 'string' ? img : img.src);
 
+        const tmpl = templates[page.gridTemplate];
+        const rows = tmpl ? tmpl.rows : (page.gridRows || 2);
+        const cols = tmpl ? tmpl.cols : (page.gridCols || 2);
+
         saveBookData();
         renderCurrentPage();
         PageManager.renderThumbnailStrip();
-        PageManager.showToast(`Arranged ${page.images.length} images in ${rows}×${cols} grid`);
+        PageManager.showToast(`Arranged ${page.images.length} images in ${tmpl ? tmpl.name : rows + '×' + cols} layout`);
     }
 
     return {
@@ -203,7 +277,9 @@ const GridLayout = (function() {
         setGridSpacing,
         setGridPadding,
         updateControls,
-        autoArrangeImages
+        autoArrangeImages,
+        getTemplate,
+        getMaxSlots
     };
 })();
 

@@ -171,8 +171,10 @@ const PhotoLibrary = (function() {
         const canvas = document.getElementById('pageCanvas');
         const rect = canvas.getBoundingClientRect();
 
-        const width = 220;
-        const height = 220;
+        const baseWidth = 220;
+        const aspectRatio = photo.aspectRatio || (photo.width && photo.height ? photo.width / photo.height : 1);
+        const width = baseWidth;
+        const height = baseWidth / aspectRatio;
         const posX = x !== null ? x : (rect.width - width) / 2;
         const posY = y !== null ? y : (rect.height - height) / 2;
 
@@ -184,6 +186,7 @@ const PhotoLibrary = (function() {
                 y: posY,
                 width: width,
                 height: height,
+                aspectRatio: aspectRatio,
                 rotation: 0,
                 zIndex: page.images.length + 1
             });

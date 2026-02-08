@@ -5211,3 +5211,59 @@ button:focus-visible,
     pointer-events: none;
     z-index: 1000;
 }
+
+/* Empty Grid Cell Placeholders */
+.grid-cell-empty {
+    border: 2px dashed #d1d5db;
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(243, 244, 246, 0.5);
+    min-height: 0;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.grid-cell-empty:hover {
+    border-color: #6366f1;
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.grid-cell-empty i {
+    font-size: 1.5rem;
+    color: #d1d5db;
+}
+
+.grid-cell-empty:hover i {
+    color: #6366f1;
+}
+
+/* Empty Page State */
+.empty-page-state {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #9ca3af;
+    pointer-events: none;
+}
+
+.empty-page-state i {
+    font-size: 3rem;
+    margin-bottom: 12px;
+    color: #d1d5db;
+}
+
+.empty-page-state p {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.empty-page-state span {
+    font-size: 0.8125rem;
+    display: block;
+    margin-top: 4px;
+}
+
