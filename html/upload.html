@@ -109,14 +109,42 @@
 
     <script>
         let photoLibrary = [];
+        let bookData = null;
 
-        // Load existing library from localStorage
+        // Load existing library from bookData in localStorage
         function loadLibrary() {
-            const stored = localStorage.getItem('photoLibrary');
-            if (stored) {
-                photoLibrary = JSON.parse(stored);
-                renderLibrary();
+            // Load bookData (created by setup.html)
+            const storedBook = localStorage.getItem('bookData');
+            if (storedBook) {
+                bookData = JSON.parse(storedBook);
+                if (!bookData.photoLibrary) bookData.photoLibrary = [];
+            } else {
+                // No bookData yet - create minimal structure
+                bookData = { photoLibrary: [] };
             }
+
+            // Also check standalone photoLibrary key (legacy support) and merge
+            const storedLegacy = localStorage.getItem('photoLibrary');
+            if (storedLegacy) {
+                const legacyPhotos = JSON.parse(storedLegacy);
+                if (legacyPhotos.length > 0) {
+                    const existingSrcs = new Set(bookData.photoLibrary.map(p => p.src));
+                    legacyPhotos.forEach(photo => {
+                        if (!existingSrcs.has(photo.src)) {
+                            // Ensure photo has all required fields
+                            if (!photo.name) photo.name = 'Photo';
+                            if (!photo.dateAdded) photo.dateAdded = new Date().toISOString();
+                            bookData.photoLibrary.push(photo);
+                        }
+                    });
+                    // Clear legacy key after merging
+                    localStorage.removeItem('photoLibrary');
+                    saveLibrary();
+                }
+            }
+
+            photoLibrary = bookData.photoLibrary;
+            renderLibrary();
         }
 
         // Render photo library grid
@@ -142,7 +170,7 @@
 
             grid.innerHTML = photoLibrary.map((photo, index) => `
                 <div class="photo-grid-item">
-                    <img src="${photo.src}" alt="Photo ${index + 1}">
+                    <img src="${photo.src}" alt="${photo.name || 'Photo ' + (index + 1)}">
                     <button class="photo-grid-delete" onclick="deletePhoto(${index})">
                         <i class="fas fa-times"></i>
                     </button>
@@ -151,14 +179,35 @@
         }
 
         // Add photo to library
-        function addPhoto(src) {
-            photoLibrary.push({
-                id: 'photo_' + Date.now(),
-                src: src,
-                addedAt: Date.now()
-            });
-            saveLibrary();
-            renderLibrary();
+        function addPhoto(src, fileName) {
+            const img = new Image();
+            img.onload = function() {
+                const photo = {
+                    id: 'photo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                    src: src,
+                    name: fileName || 'Photo',
+                    width: img.naturalWidth,
+                    height: img.naturalHeight,
+                    aspectRatio: img.naturalWidth / img.naturalHeight,
+                    dateAdded: new Date().toISOString()
+                };
+                photoLibrary.push(photo);
+                saveLibrary();
+                renderLibrary();
+            };
+            img.onerror = function() {
+                // Fallback: add without dimensions
+                const photo = {
+                    id: 'photo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                    src: src,
+                    name: fileName || 'Photo',
+                    dateAdded: new Date().toISOString()
+                };
+                photoLibrary.push(photo);
+                saveLibrary();
+                renderLibrary();
+            };
+            img.src = src;
         }
 
         // Delete photo from library
@@ -170,12 +219,15 @@
             }
         }
 
-        // Save library to localStorage
+        // Save library into bookData in localStorage
         function saveLibrary() {
-            localStorage.setItem('photoLibrary', JSON.stringify(photoLibrary));
+            if (bookData) {
+                bookData.photoLibrary = photoLibrary;
+                localStorage.setItem('bookData', JSON.stringify(bookData));
+            }
         }
 
-       // File upload handler
+        // File upload handler
         document.getElementById('fileUpload').addEventListener('change', function(e) {
             const files = Array.from(e.target.files);
 
@@ -183,7 +235,7 @@
                 if (file.type.startsWith('image/')) {
                     const reader = new FileReader();
                     reader.onload = function(event) {
-                        addPhoto(event.target.result);
+                        addPhoto(event.target.result, file.name);
                     };
                     reader.readAsDataURL(file);
                 }

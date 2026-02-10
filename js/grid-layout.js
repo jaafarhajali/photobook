@@ -238,6 +238,11 @@ const GridLayout = (function() {
 
         const maxCells = getMaxSlots(page.gridTemplate) || (page.gridRows || 2) * (page.gridCols || 2);
 
+        // Compact: remove nulls and convert all to strings
+        page.images = page.images
+            .filter(img => img !== null && img !== undefined)
+            .map(img => typeof img === 'string' ? img : img.src);
+
         // Get images from library if current page has fewer images than cells
         if (page.images.length < maxCells && bookData.photoLibrary && bookData.photoLibrary.length > 0) {
             const existingSrcs = new Set(page.images.map(img => typeof img === 'string' ? img : img.src));
@@ -256,9 +261,6 @@ const GridLayout = (function() {
                 page.images = page.images.slice(0, maxCells);
             }
         }
-
-        // Convert all images to simple string format for grid mode
-        page.images = page.images.map(img => typeof img === 'string' ? img : img.src);
 
         const tmpl = templates[page.gridTemplate];
         const rows = tmpl ? tmpl.rows : (page.gridRows || 2);

@@ -73,7 +73,7 @@ const PageManager = (function() {
             const previewGrid = document.createElement('div');
             previewGrid.className = 'thumbnail-preview-grid';
 
-            page.images.slice(0, 4).forEach(img => {
+            page.images.filter(img => img !== null && img !== undefined).slice(0, 4).forEach(img => {
                 const src = typeof img === 'string' ? img : img.src;
                 const miniImg = document.createElement('div');
                 miniImg.className = 'thumbnail-mini-image';
@@ -142,6 +142,7 @@ const PageManager = (function() {
     function goToPage(index) {
         if (index >= 0 && index < bookData.pages.length) {
             currentPageIndex = index;
+            window.selectedGridSlot = null;
             saveCurrentPageIndex();
             renderCurrentPage();
             updateNavigationButtons();

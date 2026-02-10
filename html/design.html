@@ -379,6 +379,8 @@
         let bookData = JSON.parse(localStorage.getItem('bookData'));
         let currentPageIndex = parseInt(localStorage.getItem('currentPageIndex')) || 0;
         let selectedTextBlockIndex = null;
+        // Track which grid cell the user clicked so the next library photo goes there
+        window.selectedGridSlot = null;
 
         // Undo/Redo history
         const undoHistory = [];
@@ -386,12 +388,18 @@
         const MAX_HISTORY = 30;
         let historyPaused = false;
 
+        // Track the last saved state so we can push it to undo BEFORE the next change
+        let lastSavedState = null;
+
         function pushUndoState() {
             if (historyPaused) return;
-            undoHistory.push(JSON.stringify(bookData));
-            if (undoHistory.length > MAX_HISTORY) undoHistory.shift();
-            redoHistory.length = 0;
-            updateUndoRedoButtons();
+            // Push the PREVIOUS state (before the current change) to undo history
+            if (lastSavedState !== null) {
+                undoHistory.push(lastSavedState);
+                if (undoHistory.length > MAX_HISTORY) undoHistory.shift();
+                redoHistory.length = 0;
+                updateUndoRedoButtons();
+            }
         }
 
         function undo() {
@@ -400,7 +408,8 @@
             const prev = undoHistory.pop();
             historyPaused = true;
             bookData = JSON.parse(prev);
-            localStorage.setItem('bookData', JSON.stringify(bookData));
+            lastSavedState = prev;
+            localStorage.setItem('bookData', prev);
             historyPaused = false;
             if (currentPageIndex >= bookData.pages.length) {
                 currentPageIndex = bookData.pages.length - 1;
@@ -416,7 +425,8 @@
             const next = redoHistory.pop();
             historyPaused = true;
             bookData = JSON.parse(next);
-            localStorage.setItem('bookData', JSON.stringify(bookData));
+            lastSavedState = next;
+            localStorage.setItem('bookData', next);
             historyPaused = false;
             if (currentPageIndex >= bookData.pages.length) {
                 currentPageIndex = bookData.pages.length - 1;
@@ -443,6 +453,36 @@
             // Ensure photoLibrary exists
             if (!bookData.photoLibrary) {
                 bookData.photoLibrary = [];
+            }
+
+            // Merge photos from legacy standalone 'photoLibrary' localStorage key
+            // (upload.html previously saved here instead of inside bookData)
+            const legacyLibrary = localStorage.getItem('photoLibrary');
+            if (legacyLibrary) {
+                try {
+                    const legacyPhotos = JSON.parse(legacyLibrary);
+                    if (Array.isArray(legacyPhotos) && legacyPhotos.length > 0) {
+                        const existingSrcs = new Set(bookData.photoLibrary.map(p => p.src));
+                        legacyPhotos.forEach(photo => {
+                            if (photo.src && !existingSrcs.has(photo.src)) {
+                                bookData.photoLibrary.push({
+                                    id: photo.id || 'photo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                                    src: photo.src,
+                                    name: photo.name || 'Photo',
+                                    width: photo.width,
+                                    height: photo.height,
+                                    aspectRatio: photo.aspectRatio,
+                                    dateAdded: photo.dateAdded || new Date().toISOString()
+                                });
+                                existingSrcs.add(photo.src);
+                            }
+                        });
+                        // Remove legacy key after successful merge
+                        localStorage.removeItem('photoLibrary');
+                    }
+                } catch (e) {
+                    console.warn('Failed to parse legacy photoLibrary:', e);
+                }
             }
 
             // Ensure pages have required properties
@@ -474,6 +514,8 @@
         historyPaused = true;
         migrateBookData();
         historyPaused = false;
+        // Capture initial state so first undo works correctly
+        lastSavedState = JSON.stringify(bookData);
 
         // Initialize page
         function init() {
@@ -575,20 +617,23 @@
 
                     // Convert images to appropriate format
                     if (newMode === 'free') {
-                        page.images = page.images.map((img, i) => {
-                            if (typeof img === 'string') {
-                                return {
-                                    src: img,
-                                    x: 20 + (i % 3) * 250,
-                                    y: 20 + Math.floor(i / 3) * 250,
-                                    width: 220,
-                                    height: 220,
-                                    rotation: 0,
-                                    zIndex: i + 1
-                                };
-                            }
-                            return img;
-                        });
+                        // Filter out null slots before converting to free mode objects
+                        page.images = page.images
+                            .filter(img => img !== null && img !== undefined)
+                            .map((img, i) => {
+                                if (typeof img === 'string') {
+                                    return {
+                                        src: img,
+                                        x: 20 + (i % 3) * 250,
+                                        y: 20 + Math.floor(i / 3) * 250,
+                                        width: 220,
+                                        height: 220,
+                                        rotation: 0,
+                                        zIndex: i + 1
+                                    };
+                                }
+                                return img;
+                            });
                     }
 
                     // Always ensure text blocks have position data (both modes)
@@ -785,12 +830,14 @@
             const templateDef = GridLayout.getTemplate(page.gridTemplate);
             const hasCells = templateDef && templateDef.cells;
 
-            page.images.forEach((imageData, index) => {
-                const imgDiv = document.createElement('div');
-                imgDiv.className = 'uploaded-image';
-                imgDiv.dataset.index = index;
+            if (isFreeMode) {
+                // === FREE MODE: render all images with absolute positioning ===
+                page.images.forEach((imageData, index) => {
+                    if (imageData === null || imageData === undefined) return;
+                    const imgDiv = document.createElement('div');
+                    imgDiv.className = 'uploaded-image';
+                    imgDiv.dataset.index = index;
 
-                if (isFreeMode) {
                     imgDiv.classList.add('free-positioned', 'page-element-image');
                     const imgObj = typeof imageData === 'string' ? {
                         src: imageData,
@@ -824,94 +871,142 @@
                         </div>
                     `;
 
-                    // Apply saved filters
                     if (imgObj.filters) {
                         const imgEl = imgDiv.querySelector('img');
                         if (imgEl) imgEl.style.filter = ImageFilters.buildFilterCss(imgObj.filters);
                     }
-                } else {
-                    // Grid mode - add photo fit class (cover fills cell, contain shows full photo)
-                    const photoFit = page.photoFit || 'cover';
-                    imgDiv.classList.add(`fit-${photoFit}`);
 
-                    // Apply grid cell span for complex templates
-                    if (hasCells && index < templateDef.cells.length) {
-                        const cell = templateDef.cells[index];
-                        imgDiv.style.gridColumn = `${cell.col} / span ${cell.colSpan}`;
-                        imgDiv.style.gridRow = `${cell.row} / span ${cell.rowSpan}`;
-                    }
+                    // Tap to select for filter editing
+                    imgDiv.addEventListener('click', function(e) {
+                        if (e.target.closest('.delete-image') || e.target.closest('.rotation-handle')) return;
+                        document.querySelectorAll('.uploaded-image.filter-selected').forEach(el => el.classList.remove('filter-selected'));
+                        imgDiv.classList.add('filter-selected');
+                        ImageFilters.showPanel(index, imgDiv);
+                        const filtersPanel = document.getElementById('panel-filters');
+                        if (!filtersPanel || !filtersPanel.classList.contains('active')) {
+                            switchToTab('filters');
+                        }
+                    });
 
-                    const src = typeof imageData === 'string' ? imageData : imageData.src;
-                    imgDiv.innerHTML = `
-                        <img src="${src}" alt="Photo ${index + 1}">
-                        <button class="delete-image" onclick="deleteImage(${index})">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    `;
-
-                    // Apply saved filters in grid mode
-                    const gridFilters = (typeof imageData === 'object') ? imageData.filters : null;
-                    if (gridFilters) {
-                        const imgEl = imgDiv.querySelector('img');
-                        if (imgEl) imgEl.style.filter = ImageFilters.buildFilterCss(gridFilters);
-                    }
-                }
-
-                // Tap image to select for filter editing
-                imgDiv.addEventListener('click', function(e) {
-                    if (e.target.closest('.delete-image') || e.target.closest('.rotation-handle')) return;
-
-                    // Remove previous grid selection highlight
-                    document.querySelectorAll('.uploaded-image.filter-selected').forEach(el => el.classList.remove('filter-selected'));
-
-                    // Mark this image as selected
-                    imgDiv.classList.add('filter-selected');
-
-                    ImageFilters.showPanel(index, imgDiv);
-
-                    // Only auto-switch to filters tab if filters panel is already visible or user is on placeholder
-                    const filtersPanel = document.getElementById('panel-filters');
-                    if (filtersPanel && filtersPanel.classList.contains('active')) {
-                        // Already on filters tab, just update the panel (already done above)
-                    } else {
-                        switchToTab('filters');
-                    }
+                    imageContainer.appendChild(imgDiv);
                 });
-
-                imageContainer.appendChild(imgDiv);
-            });
-
-            // Add empty cell placeholders in grid mode
-            if (!isFreeMode) {
+            } else {
+                // === GRID MODE: render slot-by-slot so each cell maps to a fixed position ===
                 const maxSlots = hasCells
                     ? templateDef.cells.length
                     : (page.gridRows || 2) * (page.gridCols || 2);
-                const emptyCount = maxSlots - page.images.length;
 
-                for (let i = 0; i < emptyCount; i++) {
-                    const emptyDiv = document.createElement('div');
-                    emptyDiv.className = 'grid-cell-empty';
+                for (let slot = 0; slot < maxSlots; slot++) {
+                    const imageData = (slot < page.images.length) ? page.images[slot] : null;
 
-                    // Apply cell span for complex template empty slots
-                    if (hasCells) {
-                        const slotIndex = page.images.length + i;
-                        if (slotIndex < templateDef.cells.length) {
-                            const cell = templateDef.cells[slotIndex];
+                    if (imageData !== null && imageData !== undefined) {
+                        // --- Render image in this slot ---
+                        const imgDiv = document.createElement('div');
+                        imgDiv.className = 'uploaded-image';
+                        imgDiv.dataset.index = slot;
+
+                        const photoFit = page.photoFit || 'cover';
+                        imgDiv.classList.add(`fit-${photoFit}`);
+
+                        if (hasCells && slot < templateDef.cells.length) {
+                            const cell = templateDef.cells[slot];
+                            imgDiv.style.gridColumn = `${cell.col} / span ${cell.colSpan}`;
+                            imgDiv.style.gridRow = `${cell.row} / span ${cell.rowSpan}`;
+                        }
+
+                        const src = typeof imageData === 'string' ? imageData : imageData.src;
+                        imgDiv.innerHTML = `
+                            <img src="${src}" alt="Photo ${slot + 1}">
+                            <button class="delete-image" onclick="deleteImage(${slot})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        `;
+
+                        const gridFilters = (typeof imageData === 'object') ? imageData.filters : null;
+                        if (gridFilters) {
+                            const imgEl = imgDiv.querySelector('img');
+                            if (imgEl) imgEl.style.filter = ImageFilters.buildFilterCss(gridFilters);
+                        }
+
+                        // Tap to select for filter editing
+                        imgDiv.addEventListener('click', (function(s) {
+                            return function(e) {
+                                if (e.target.closest('.delete-image')) return;
+                                document.querySelectorAll('.uploaded-image.filter-selected').forEach(el => el.classList.remove('filter-selected'));
+                                imgDiv.classList.add('filter-selected');
+                                ImageFilters.showPanel(s, imgDiv);
+                                const filtersPanel = document.getElementById('panel-filters');
+                                if (!filtersPanel || !filtersPanel.classList.contains('active')) {
+                                    switchToTab('filters');
+                                }
+                            };
+                        })(slot));
+
+                        imageContainer.appendChild(imgDiv);
+                    } else {
+                        // --- Render empty cell placeholder at this slot ---
+                        const emptyDiv = document.createElement('div');
+                        emptyDiv.className = 'grid-cell-empty';
+                        emptyDiv.dataset.slot = slot;
+
+                        if (hasCells && slot < templateDef.cells.length) {
+                            const cell = templateDef.cells[slot];
                             emptyDiv.style.gridColumn = `${cell.col} / span ${cell.colSpan}`;
                             emptyDiv.style.gridRow = `${cell.row} / span ${cell.rowSpan}`;
                         }
-                    }
 
-                    emptyDiv.innerHTML = '<i class="fas fa-plus"></i>';
-                    emptyDiv.addEventListener('click', () => {
-                        switchToTab('photos');
-                    });
-                    imageContainer.appendChild(emptyDiv);
+                        // Highlight if this cell is the selected target
+                        if (window.selectedGridSlot === slot) {
+                            emptyDiv.classList.add('selected-slot');
+                        }
+
+                        emptyDiv.innerHTML = '<i class="fas fa-plus"></i>';
+
+                        // Click: select this cell as target, then switch to photos tab
+                        emptyDiv.addEventListener('click', (function(s) {
+                            return function() {
+                                window.selectedGridSlot = s;
+                                // Highlight the selected cell
+                                document.querySelectorAll('.grid-cell-empty').forEach(c => c.classList.remove('selected-slot'));
+                                emptyDiv.classList.add('selected-slot');
+                                switchToTab('photos');
+                            };
+                        })(slot));
+
+                        // Drag-and-drop: accept photos dragged from library
+                        emptyDiv.addEventListener('dragover', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            e.dataTransfer.dropEffect = 'copy';
+                            emptyDiv.classList.add('drop-hover');
+                        });
+                        emptyDiv.addEventListener('dragleave', () => {
+                            emptyDiv.classList.remove('drop-hover');
+                        });
+                        emptyDiv.addEventListener('drop', (function(s) {
+                            return function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                emptyDiv.classList.remove('drop-hover');
+                                canvas.classList.remove('drop-target');
+                                window.selectedGridSlot = s;
+                                const photoId = e.dataTransfer.getData('text/plain');
+                                if (photoId) {
+                                    PhotoLibrary.addPhotoToPage(photoId);
+                                } else if (PhotoLibrary.getDraggedPhoto()) {
+                                    PhotoLibrary.addPhotoToPage(PhotoLibrary.getDraggedPhoto().id);
+                                }
+                            };
+                        })(slot));
+
+                        imageContainer.appendChild(emptyDiv);
+                    }
                 }
             }
 
             // Show empty page state if no content in free mode
-            const hasContent = page.images.length > 0 || (page.textBlocks && page.textBlocks.length > 0);
+            const nonNullImages = page.images.filter(img => img !== null && img !== undefined);
+            const hasContent = nonNullImages.length > 0 || (page.textBlocks && page.textBlocks.length > 0);
             const existingEmptyState = canvas.querySelector('.empty-page-state');
             if (existingEmptyState) existingEmptyState.remove();
 
@@ -1010,7 +1105,7 @@
 
             if (currentPageNumberEl) currentPageNumberEl.textContent = currentPageIndex + 1;
             if (pageIndicatorEl) pageIndicatorEl.textContent = currentPageIndex + 1;
-            if (elementCountEl) elementCountEl.textContent = (page.images?.length || 0) + (page.textBlocks?.length || 0);
+            if (elementCountEl) elementCountEl.textContent = (page.images?.filter(img => img !== null && img !== undefined).length || 0) + (page.textBlocks?.length || 0);
             if (libraryCountEl) libraryCountEl.textContent = bookData.photoLibrary?.length || 0;
 
             // Update controls (optional elements)
@@ -1038,7 +1133,17 @@
         function deleteImage(imageIndex) {
             if (!confirm('Delete this image?')) return;
 
-            bookData.pages[currentPageIndex].images.splice(imageIndex, 1);
+            const page = bookData.pages[currentPageIndex];
+            if (page.layoutMode !== 'free') {
+                // Grid mode: null-out the slot to preserve cell positions
+                page.images[imageIndex] = null;
+                // Trim trailing nulls to keep array clean
+                while (page.images.length > 0 && page.images[page.images.length - 1] === null) {
+                    page.images.pop();
+                }
+            } else {
+                page.images.splice(imageIndex, 1);
+            }
             saveBookData();
             renderCurrentPage();
             PageManager.renderThumbnailStrip();
@@ -1049,6 +1154,7 @@
         function previousPage() {
             if (currentPageIndex > 0) {
                 currentPageIndex--;
+                window.selectedGridSlot = null;
                 TextEditor.clearSelection();
                 FreeLayout.deselectElement();
                 saveCurrentPageIndex();
@@ -1061,6 +1167,7 @@
         function nextPage() {
             if (currentPageIndex < bookData.numPages - 1) {
                 currentPageIndex++;
+                window.selectedGridSlot = null;
                 TextEditor.clearSelection();
                 FreeLayout.deselectElement();
                 saveCurrentPageIndex();
@@ -1087,7 +1194,9 @@
         // Save functions
         function saveBookData() {
             pushUndoState();
-            localStorage.setItem('bookData', JSON.stringify(bookData));
+            const currentState = JSON.stringify(bookData);
+            lastSavedState = currentState;
+            localStorage.setItem('bookData', currentState);
         }
 
         function saveCurrentPageIndex() {
