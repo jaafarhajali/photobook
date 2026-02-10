@@ -102,7 +102,7 @@ const GridLayout = (function() {
         const spacingInput = document.getElementById('gridSpacing');
         if (spacingInput) {
             spacingInput.addEventListener('input', (e) => {
-                const spacing = parseInt(e.target.value) || 20;
+                const spacing = parseInt(e.target.value) || 0;
                 setGridSpacing(spacing);
                 const spacingValue = document.getElementById('gridSpacingValue');
                 if (spacingValue) spacingValue.textContent = spacing + 'px';
@@ -112,7 +112,7 @@ const GridLayout = (function() {
         const paddingInput = document.getElementById('gridPadding');
         if (paddingInput) {
             paddingInput.addEventListener('input', (e) => {
-                const padding = parseInt(e.target.value) || 40;
+                const padding = parseInt(e.target.value) || 0;
                 setGridPadding(padding);
                 const paddingValue = document.getElementById('gridPaddingValue');
                 if (paddingValue) paddingValue.textContent = padding + 'px';
@@ -206,16 +206,16 @@ const GridLayout = (function() {
         if (photoFitSelect) photoFitSelect.value = page.photoFit || 'cover';
 
         const spacingInput = document.getElementById('gridSpacing');
-        if (spacingInput) spacingInput.value = page.gridSpacing || 20;
+        if (spacingInput) spacingInput.value = page.gridSpacing !== undefined ? page.gridSpacing : 0;
 
         const paddingInput = document.getElementById('gridPadding');
-        if (paddingInput) paddingInput.value = page.gridPadding || 40;
+        if (paddingInput) paddingInput.value = page.gridPadding !== undefined ? page.gridPadding : 0;
 
         const spacingValue = document.getElementById('gridSpacingValue');
-        if (spacingValue) spacingValue.textContent = (page.gridSpacing || 20) + 'px';
+        if (spacingValue) spacingValue.textContent = (page.gridSpacing !== undefined ? page.gridSpacing : 0) + 'px';
 
         const paddingValue = document.getElementById('gridPaddingValue');
-        if (paddingValue) paddingValue.textContent = (page.gridPadding || 40) + 'px';
+        if (paddingValue) paddingValue.textContent = (page.gridPadding !== undefined ? page.gridPadding : 0) + 'px';
     }
 
     function getTemplate(key) {

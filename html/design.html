@@ -50,10 +50,18 @@
         <!-- Page Info Bar -->
         <div class="page-info-bar">
             <span class="page-counter-large" id="pageCounter">Page 1 / 10</span>
-            <button class="btn-add-page" onclick="PageManager.addPage()">
-                <i class="fas fa-plus"></i>
-                <span>Add Page</span>
-            </button>
+            <div class="page-info-actions">
+                <button class="btn-undo-redo" id="undoBtn" onclick="undo()" disabled title="Undo">
+                    <i class="fas fa-undo"></i>
+                </button>
+                <button class="btn-undo-redo" id="redoBtn" onclick="redo()" disabled title="Redo">
+                    <i class="fas fa-redo"></i>
+                </button>
+                <button class="btn-add-page" onclick="PageManager.addPage()">
+                    <i class="fas fa-plus"></i>
+                    <span>Add Page</span>
+                </button>
+            </div>
         </div>
 
         <!-- Main Canvas Area -->
@@ -98,6 +106,9 @@
                 </button>
                 <button class="control-toggle-btn" data-panel="pages">
                     <i class="fas fa-file"></i>
+                </button>
+                <button class="control-toggle-btn" data-panel="filters">
+                    <i class="fas fa-sliders-h"></i>
                 </button>
             </div>
 
@@ -179,6 +190,14 @@
                                     <option value="contain">Fit Entire Photo</option>
                                 </select>
                             </div>
+                            <div class="setting-group">
+                                <label>Gap <span id="gridSpacingValue" style="float:right; color:#666;">0px</span></label>
+                                <input type="range" class="form-range" id="gridSpacing" min="0" max="30" value="0" step="1">
+                            </div>
+                            <div class="setting-group">
+                                <label>Padding <span id="gridPaddingValue" style="float:right; color:#666;">0px</span></label>
+                                <input type="range" class="form-range" id="gridPadding" min="0" max="30" value="0" step="1">
+                            </div>
                             <button class="btn-action" id="autoArrangeBtn">
                                 <i class="fas fa-magic"></i> Auto Arrange
                             </button>
@@ -249,6 +268,87 @@
                         </button>
                     </div>
                 </div>
+
+                <!-- Filters Panel -->
+                <div class="control-panel" id="panel-filters">
+                    <div id="noImageSelected" class="filter-placeholder">
+                        <i class="fas fa-image"></i>
+                        <p>Tap a photo to edit</p>
+                    </div>
+                    <div id="filterControls" style="display: none;">
+                        <div class="filter-presets-row">
+                            <button class="filter-preset-btn" id="preset-vivid">
+                                <i class="fas fa-sun"></i>
+                                <span>Vivid</span>
+                            </button>
+                            <button class="filter-preset-btn" id="preset-bw">
+                                <i class="fas fa-adjust"></i>
+                                <span>B&W</span>
+                            </button>
+                            <button class="filter-preset-btn" id="preset-sepia">
+                                <i class="fas fa-film"></i>
+                                <span>Sepia</span>
+                            </button>
+                            <button class="filter-preset-btn" id="preset-warm">
+                                <i class="fas fa-fire"></i>
+                                <span>Warm</span>
+                            </button>
+                            <button class="filter-preset-btn" id="preset-cool">
+                                <i class="fas fa-snowflake"></i>
+                                <span>Cool</span>
+                            </button>
+                            <button class="filter-preset-btn" id="preset-fade">
+                                <i class="fas fa-cloud"></i>
+                                <span>Fade</span>
+                            </button>
+                            <button class="filter-preset-btn" id="preset-dramatic">
+                                <i class="fas fa-bolt"></i>
+                                <span>Drama</span>
+                            </button>
+                            <button class="filter-preset-btn" id="preset-vintage">
+                                <i class="fas fa-camera-retro"></i>
+                                <span>Vintage</span>
+                            </button>
+                        </div>
+
+                        <div class="filter-slider-group">
+                            <label>Brightness <span id="filterVal-brightness" class="filter-val">100%</span></label>
+                            <input type="range" class="filter-range" id="filter-brightness" min="0.2" max="2" step="0.05" value="1">
+                        </div>
+                        <div class="filter-slider-group">
+                            <label>Contrast <span id="filterVal-contrast" class="filter-val">100%</span></label>
+                            <input type="range" class="filter-range" id="filter-contrast" min="0.2" max="2" step="0.05" value="1">
+                        </div>
+                        <div class="filter-slider-group">
+                            <label>Saturation <span id="filterVal-saturate" class="filter-val">100%</span></label>
+                            <input type="range" class="filter-range" id="filter-saturate" min="0" max="3" step="0.05" value="1">
+                        </div>
+                        <div class="filter-slider-group">
+                            <label>Grayscale <span id="filterVal-grayscale" class="filter-val">0%</span></label>
+                            <input type="range" class="filter-range" id="filter-grayscale" min="0" max="1" step="0.05" value="0">
+                        </div>
+                        <div class="filter-slider-group">
+                            <label>Sepia <span id="filterVal-sepia" class="filter-val">0%</span></label>
+                            <input type="range" class="filter-range" id="filter-sepia" min="0" max="1" step="0.05" value="0">
+                        </div>
+                        <div class="filter-slider-group">
+                            <label>Hue Rotate <span id="filterVal-hueRotate" class="filter-val">0&deg;</span></label>
+                            <input type="range" class="filter-range" id="filter-hueRotate" min="-180" max="180" step="5" value="0">
+                        </div>
+                        <div class="filter-slider-group">
+                            <label>Blur <span id="filterVal-blur" class="filter-val">0.0px</span></label>
+                            <input type="range" class="filter-range" id="filter-blur" min="0" max="10" step="0.5" value="0">
+                        </div>
+                        <div class="filter-slider-group">
+                            <label>Opacity <span id="filterVal-opacity" class="filter-val">100%</span></label>
+                            <input type="range" class="filter-range" id="filter-opacity" min="0" max="1" step="0.05" value="1">
+                        </div>
+
+                        <button class="btn-action" id="resetFilters" style="margin-top: 12px;">
+                            <i class="fas fa-undo"></i> Reset Filters
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -271,6 +371,7 @@
     <script src="../js/grid-layout.js"></script>
     <script src="../js/free-layout.js"></script>
     <script src="../js/text-editor.js"></script>
+    <script src="../js/image-filters.js"></script>
     <script src="../js/pdf-export.js"></script>
 
     <script>
@@ -278,6 +379,59 @@
         let bookData = JSON.parse(localStorage.getItem('bookData'));
         let currentPageIndex = parseInt(localStorage.getItem('currentPageIndex')) || 0;
         let selectedTextBlockIndex = null;
+
+        // Undo/Redo history
+        const undoHistory = [];
+        const redoHistory = [];
+        const MAX_HISTORY = 30;
+        let historyPaused = false;
+
+        function pushUndoState() {
+            if (historyPaused) return;
+            undoHistory.push(JSON.stringify(bookData));
+            if (undoHistory.length > MAX_HISTORY) undoHistory.shift();
+            redoHistory.length = 0;
+            updateUndoRedoButtons();
+        }
+
+        function undo() {
+            if (undoHistory.length === 0) return;
+            redoHistory.push(JSON.stringify(bookData));
+            const prev = undoHistory.pop();
+            historyPaused = true;
+            bookData = JSON.parse(prev);
+            localStorage.setItem('bookData', JSON.stringify(bookData));
+            historyPaused = false;
+            if (currentPageIndex >= bookData.pages.length) {
+                currentPageIndex = bookData.pages.length - 1;
+            }
+            renderCurrentPage();
+            PageManager.renderThumbnailStrip();
+            updateUndoRedoButtons();
+        }
+
+        function redo() {
+            if (redoHistory.length === 0) return;
+            undoHistory.push(JSON.stringify(bookData));
+            const next = redoHistory.pop();
+            historyPaused = true;
+            bookData = JSON.parse(next);
+            localStorage.setItem('bookData', JSON.stringify(bookData));
+            historyPaused = false;
+            if (currentPageIndex >= bookData.pages.length) {
+                currentPageIndex = bookData.pages.length - 1;
+            }
+            renderCurrentPage();
+            PageManager.renderThumbnailStrip();
+            updateUndoRedoButtons();
+        }
+
+        function updateUndoRedoButtons() {
+            const undoBtn = document.getElementById('undoBtn');
+            const redoBtn = document.getElementById('redoBtn');
+            if (undoBtn) undoBtn.disabled = undoHistory.length === 0;
+            if (redoBtn) redoBtn.disabled = redoHistory.length === 0;
+        }
 
         // Redirect to setup if no data
         if (!bookData) {
@@ -298,20 +452,28 @@
                 if (!page.elements) page.elements = [];
                 if (!page.images) page.images = [];
                 if (!page.imageColumns) page.imageColumns = bookData.layout === 'classic' ? 1 : bookData.layout === 'modern' ? 2 : 3;
-                if (!page.imageSpacing) page.imageSpacing = 20;
+                if (page.imageSpacing === undefined) page.imageSpacing = 0;
                 if (!page.bgPattern) page.bgPattern = 'none';
                 if (!page.layoutMode) page.layoutMode = 'grid';
                 if (!page.gridTemplate) page.gridTemplate = '2x2';
                 if (!page.gridRows) page.gridRows = 2;
                 if (!page.gridCols) page.gridCols = 2;
-                if (!page.gridSpacing) page.gridSpacing = 20;
-                if (!page.gridPadding) page.gridPadding = 40;
+                if (page.gridSpacing === undefined) page.gridSpacing = 0;
+                if (page.gridPadding === undefined) page.gridPadding = 0;
+                // Migrate old large spacing/padding values to 0 for full-bleed
+                if (page.gridSpacing >= 20) page.gridSpacing = 0;
+                if (page.gridPadding >= 20) page.gridPadding = 0;
+                if (page.imageSpacing >= 20) page.imageSpacing = 0;
+                // Default photo fit to cover for full cell filling
+                if (!page.photoFit) page.photoFit = 'cover';
             });
 
             saveBookData();
         }
 
+        historyPaused = true;
         migrateBookData();
+        historyPaused = false;
 
         // Initialize page
         function init() {
@@ -334,6 +496,7 @@
             GridLayout.init();
             FreeLayout.init();
             TextEditor.init();
+            ImageFilters.init();
             PDFExport.init();
 
             setupEventListeners();
@@ -426,16 +589,19 @@
                             }
                             return img;
                         });
+                    }
 
-                        // Add position/size to text blocks
-                        if (page.textBlocks) {
-                            page.textBlocks.forEach((block, i) => {
-                                if (!block.x) block.x = 20;
-                                if (!block.y) block.y = 500 + (i * 80);
-                                if (!block.width) block.width = 300;
-                                if (!block.rotation) block.rotation = 0;
-                            });
-                        }
+                    // Always ensure text blocks have position data (both modes)
+                    if (page.textBlocks) {
+                        const canvasEl = document.getElementById('pageCanvas');
+                        const canvasW = canvasEl ? canvasEl.offsetWidth : 400;
+                        const canvasH = canvasEl ? canvasEl.offsetHeight : 500;
+                        page.textBlocks.forEach((block, i) => {
+                            if (block.x === undefined) block.x = Math.max(10, (canvasW - 280) / 2);
+                            if (block.y === undefined) block.y = canvasH * 0.7 + (i * 50);
+                            if (!block.width) block.width = 280;
+                            if (block.rotation === undefined) block.rotation = 0;
+                        });
                     }
 
                     saveBookData();
@@ -490,6 +656,29 @@
 
             // Drag and drop on upload area
             setupDragDrop();
+
+            // Click on canvas blank area to deselect grid images (for filter panel)
+            const pageCanvas = document.getElementById('pageCanvas');
+            if (pageCanvas) {
+                pageCanvas.addEventListener('click', function(e) {
+                    // Only deselect if clicking directly on canvas or image-grid, not on an image
+                    if (e.target === pageCanvas || e.target.classList.contains('image-grid') || e.target.classList.contains('grid-cell-empty')) {
+                        ImageFilters.hidePanel();
+                    }
+                });
+            }
+
+            // Undo/Redo keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
+                if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+                    e.preventDefault();
+                    undo();
+                } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+                    e.preventDefault();
+                    redo();
+                }
+            });
         }
 
         // Setup drag and drop for library upload
@@ -558,20 +747,38 @@
             imageContainer.className = `image-grid ${isFreeMode ? 'free' : bookData.layout}`;
 
             if (!isFreeMode) {
-                // Apply grid layout
+                // Apply grid layout - fill the entire canvas
                 const rows = page.gridRows || 2;
                 const cols = page.gridCols || 2;
-                const spacing = page.gridSpacing || 20;
+                const spacing = page.gridSpacing !== undefined ? page.gridSpacing : 0;
+                const padding = page.gridPadding !== undefined ? page.gridPadding : 0;
 
                 imageContainer.style.display = 'grid';
                 imageContainer.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
                 imageContainer.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
                 imageContainer.style.gap = `${spacing}px`;
-                imageContainer.style.padding = `${page.gridPadding || 40}px`;
+                imageContainer.style.padding = `${padding}px`;
+                imageContainer.style.position = 'absolute';
+                imageContainer.style.top = '0';
+                imageContainer.style.left = '0';
+                imageContainer.style.right = '0';
+                imageContainer.style.bottom = '0';
+                imageContainer.style.width = '100%';
+                imageContainer.style.height = '100%';
             } else {
                 imageContainer.style.display = 'block';
                 imageContainer.style.padding = '0';
+                imageContainer.style.position = 'absolute';
+                imageContainer.style.top = '0';
+                imageContainer.style.left = '0';
+                imageContainer.style.right = '0';
+                imageContainer.style.bottom = '0';
+                imageContainer.style.width = '100%';
+                imageContainer.style.height = '100%';
             }
+
+            // Remove page-canvas padding in grid mode to allow full bleed
+            canvas.style.padding = isFreeMode ? '0' : '0';
 
             // Render images
             imageContainer.innerHTML = '';
@@ -616,9 +823,15 @@
                             <i class="fas fa-redo"></i>
                         </div>
                     `;
+
+                    // Apply saved filters
+                    if (imgObj.filters) {
+                        const imgEl = imgDiv.querySelector('img');
+                        if (imgEl) imgEl.style.filter = ImageFilters.buildFilterCss(imgObj.filters);
+                    }
                 } else {
-                    // Grid mode - add photo fit class
-                    const photoFit = page.photoFit || 'contain';
+                    // Grid mode - add photo fit class (cover fills cell, contain shows full photo)
+                    const photoFit = page.photoFit || 'cover';
                     imgDiv.classList.add(`fit-${photoFit}`);
 
                     // Apply grid cell span for complex templates
@@ -635,7 +848,35 @@
                             <i class="fas fa-times"></i>
                         </button>
                     `;
+
+                    // Apply saved filters in grid mode
+                    const gridFilters = (typeof imageData === 'object') ? imageData.filters : null;
+                    if (gridFilters) {
+                        const imgEl = imgDiv.querySelector('img');
+                        if (imgEl) imgEl.style.filter = ImageFilters.buildFilterCss(gridFilters);
+                    }
                 }
+
+                // Tap image to select for filter editing
+                imgDiv.addEventListener('click', function(e) {
+                    if (e.target.closest('.delete-image') || e.target.closest('.rotation-handle')) return;
+
+                    // Remove previous grid selection highlight
+                    document.querySelectorAll('.uploaded-image.filter-selected').forEach(el => el.classList.remove('filter-selected'));
+
+                    // Mark this image as selected
+                    imgDiv.classList.add('filter-selected');
+
+                    ImageFilters.showPanel(index, imgDiv);
+
+                    // Only auto-switch to filters tab if filters panel is already visible or user is on placeholder
+                    const filtersPanel = document.getElementById('panel-filters');
+                    if (filtersPanel && filtersPanel.classList.contains('active')) {
+                        // Already on filters tab, just update the panel (already done above)
+                    } else {
+                        switchToTab('filters');
+                    }
+                });
 
                 imageContainer.appendChild(imgDiv);
             });
@@ -685,37 +926,46 @@
                 canvas.appendChild(emptyState);
             }
 
-            // Render text blocks
+            // Render text blocks - always free-positioned and draggable in both modes
             textContainer.innerHTML = '';
+            textContainer.style.position = 'absolute';
+            textContainer.style.top = '0';
+            textContainer.style.left = '0';
+            textContainer.style.width = '100%';
+            textContainer.style.height = '100%';
+            textContainer.style.pointerEvents = 'none';
+            textContainer.style.zIndex = '50';
+
             if (page.textBlocks && page.textBlocks.length > 0) {
                 page.textBlocks.forEach((block, index) => {
                     const textDiv = document.createElement('div');
-                    textDiv.className = 'page-text-element';
+                    textDiv.className = 'page-text-element free-positioned';
                     textDiv.dataset.index = index;
+                    textDiv.style.pointerEvents = 'auto';
 
-                    if (isFreeMode) {
-                        textDiv.classList.add('free-positioned');
-                        textDiv.style.left = (block.x || 20) + 'px';
-                        textDiv.style.top = (block.y || 500 + (index * 80)) + 'px';
-                        textDiv.style.width = (block.width || 300) + 'px';
-                        textDiv.style.zIndex = block.zIndex || 100 + index;
-                        if (block.rotation) {
-                            textDiv.style.transform = `rotate(${block.rotation}deg)`;
-                            textDiv.setAttribute('data-rotation', block.rotation);
-                        }
-                        textDiv.setAttribute('data-x', block.x || 20);
-                        textDiv.setAttribute('data-y', block.y || 500 + (index * 80));
+                    // Ensure position data exists
+                    const canvasEl = document.getElementById('pageCanvas');
+                    const defaultX = block.x || 20;
+                    const defaultY = block.y || (canvasEl ? canvasEl.offsetHeight * 0.7 : 400) + (index * 60);
+                    const defaultWidth = block.width || 280;
 
-                        textDiv.innerHTML = `
-                            ${block.content}
-                            <div class="rotation-handle" title="Drag to rotate">
-                                <i class="fas fa-redo"></i>
-                            </div>
-                        `;
-                    } else {
-                        textDiv.classList.add(`text-position-${block.position || 'bottom'}`);
-                        textDiv.textContent = block.content;
+                    textDiv.style.left = defaultX + 'px';
+                    textDiv.style.top = defaultY + 'px';
+                    textDiv.style.width = defaultWidth + 'px';
+                    textDiv.style.zIndex = block.zIndex || 100 + index;
+                    if (block.rotation) {
+                        textDiv.style.transform = `rotate(${block.rotation}deg)`;
+                        textDiv.setAttribute('data-rotation', block.rotation);
                     }
+                    textDiv.setAttribute('data-x', defaultX);
+                    textDiv.setAttribute('data-y', defaultY);
+
+                    textDiv.innerHTML = `
+                        ${block.content}
+                        <div class="rotation-handle" title="Drag to rotate">
+                            <i class="fas fa-redo"></i>
+                        </div>
+                    `;
 
                     // Apply styles
                     textDiv.style.fontFamily = block.fontFamily || "'Montserrat', sans-serif";
@@ -733,7 +983,6 @@
                         if (block.style.backgroundColor && block.style.backgroundOpacity > 0) {
                             const bgColor = block.style.backgroundColor;
                             const opacity = block.style.backgroundOpacity;
-                            // Convert hex to rgba
                             const hex = bgColor.replace('#', '');
                             const r = parseInt(hex.substring(0, 2), 16);
                             const g = parseInt(hex.substring(2, 4), 16);
@@ -780,9 +1029,9 @@
             TextEditor.renderTextBlocksList();
 
             // Re-initialize interact.js for new elements
-            if (isFreeMode) {
-                FreeLayout.reinitialize();
-            }
+            // Always reinit for text blocks (draggable in both modes)
+            // and for images in free mode
+            FreeLayout.reinitialize();
         }
 
         // Delete image
@@ -837,6 +1086,7 @@
 
         // Save functions
         function saveBookData() {
+            pushUndoState();
             localStorage.setItem('bookData', JSON.stringify(bookData));
         }
 

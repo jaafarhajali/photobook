@@ -84,7 +84,11 @@ const FreeLayout = (function() {
         // Draggable for images
         interact('.free-positioned.uploaded-image, .free-positioned.page-element-image')
             .draggable({
-                inertia: true,
+                inertia: {
+                    resistance: 12,
+                    minSpeed: 200,
+                    endSpeed: 50
+                },
                 modifiers: [
                     interact.modifiers.restrictRect({
                         restriction: 'parent',
@@ -95,7 +99,10 @@ const FreeLayout = (function() {
                     start: onDragStart,
                     move: onDragMove,
                     end: onDragEnd
-                }
+                },
+                // Better touch settings
+                allowFrom: '*',
+                ignoreFrom: '.delete-image, .rotation-handle'
             })
             .resizable({
                 edges: { left: true, right: true, bottom: true, top: true },
@@ -105,18 +112,24 @@ const FreeLayout = (function() {
                 },
                 modifiers: [
                     interact.modifiers.restrictSize({
-                        min: { width: 100, height: 100 }
+                        min: { width: 60, height: 60 }
                     }),
                     interact.modifiers.aspectRatio({
                         ratio: 'preserve'
                     })
-                ]
+                ],
+                // Touch-friendly edge margins (bigger hit area)
+                margin: 12
             });
 
         // Draggable for text
         interact('.free-positioned.page-text-element')
             .draggable({
-                inertia: true,
+                inertia: {
+                    resistance: 12,
+                    minSpeed: 200,
+                    endSpeed: 50
+                },
                 modifiers: [
                     interact.modifiers.restrictRect({
                         restriction: 'parent',
@@ -127,7 +140,9 @@ const FreeLayout = (function() {
                     start: onDragStart,
                     move: onDragMove,
                     end: onDragEnd
-                }
+                },
+                allowFrom: '*',
+                ignoreFrom: '.rotation-handle'
             })
             .resizable({
                 edges: { left: true, right: true, bottom: true, top: true },
@@ -137,16 +152,19 @@ const FreeLayout = (function() {
                 },
                 modifiers: [
                     interact.modifiers.restrictSize({
-                        min: { width: 100, height: 30 }
+                        min: { width: 80, height: 30 }
                     })
-                ]
+                ],
+                margin: 12
             });
 
         // Rotation handle
         interact('.rotation-handle')
             .draggable({
-                onmove: onRotateMove,
-                onend: onRotateEnd
+                listeners: {
+                    move: onRotateMove,
+                    end: onRotateEnd
+                }
             });
     }
 
@@ -264,6 +282,15 @@ const FreeLayout = (function() {
         if (rotationInput) {
             rotationInput.value = Math.round(currentRotation);
         }
+
+        // Show filter panel if an image is selected
+        const isImage = domElement.classList.contains('uploaded-image') || domElement.classList.contains('page-element-image');
+        if (isImage && typeof ImageFilters !== 'undefined') {
+            const imgIndex = parseInt(domElement.dataset.index);
+            if (!isNaN(imgIndex)) {
+                ImageFilters.showPanel(imgIndex, domElement);
+            }
+        }
     }
 
     function selectElement(elementId) {
@@ -277,6 +304,11 @@ const FreeLayout = (function() {
         }
         selectedElement = null;
         hideElementToolbar();
+
+        // Hide filter panel when deselecting
+        if (typeof ImageFilters !== 'undefined') {
+            ImageFilters.hidePanel();
+        }
     }
 
     function saveElementPosition(domElement) {

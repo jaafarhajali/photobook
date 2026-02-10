@@ -158,13 +158,13 @@ const PageManager = (function() {
             gridTemplate: '2x2',
             gridRows: 2,
             gridCols: 2,
-            gridSpacing: 20,
-            gridPadding: 40,
+            gridSpacing: 0,
+            gridPadding: 0,
             elements: [],
             images: [],
             textBlocks: [],
             imageColumns: 2,
-            imageSpacing: 20
+            imageSpacing: 0
         };
 
         const insertIndex = currentPageIndex + 1;

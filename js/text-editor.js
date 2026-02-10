@@ -215,7 +215,10 @@ const TextEditor = (function() {
         const page = bookData.pages[currentPageIndex];
         if (!page.textBlocks) page.textBlocks = [];
 
-        const isFreeMode = page.layoutMode === 'free';
+        // Get canvas dimensions for smart positioning
+        const canvasEl = document.getElementById('pageCanvas');
+        const canvasH = canvasEl ? canvasEl.offsetHeight : 500;
+        const canvasW = canvasEl ? canvasEl.offsetWidth : 400;
 
         const newTextBlock = {
             id: 'text_' + Date.now(),
@@ -232,14 +235,13 @@ const TextEditor = (function() {
                 backgroundColor: '#ffffff',
                 backgroundOpacity: 0
             },
-            rotation: 0
+            rotation: 0,
+            // Always include position data so text is freely placed in both modes
+            x: Math.max(10, (canvasW - 280) / 2),
+            y: Math.min(canvasH - 60, canvasH * 0.75 + (page.textBlocks.length * 50)),
+            width: 280,
+            zIndex: 100 + page.textBlocks.length
         };
-
-        if (isFreeMode) {
-            newTextBlock.x = 20;
-            newTextBlock.y = 400 + (page.textBlocks.length * 80);
-            newTextBlock.width = 300;
-        }
 
         page.textBlocks.push(newTextBlock);
         saveBookData();
