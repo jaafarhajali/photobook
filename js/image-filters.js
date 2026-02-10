@@ -175,6 +175,19 @@ const ImageFilters = (function() {
         selectedImageIndex = imageIndex;
         selectedImageElement = imageElement;
 
+        // Activate the filters tab directly
+        const filtersPanel = document.getElementById('panel-filters');
+        if (filtersPanel) {
+            // Deactivate all panels and toggle buttons
+            document.querySelectorAll('.control-panel').forEach(function(p) { p.classList.remove('active'); });
+            document.querySelectorAll('.control-toggle-btn').forEach(function(b) { b.classList.remove('active'); });
+            // Activate filters panel
+            filtersPanel.classList.add('active');
+            const filtersBtn = document.querySelector('.control-toggle-btn[data-panel="filters"]');
+            if (filtersBtn) filtersBtn.classList.add('active');
+        }
+
+        // Show filter controls, hide placeholder
         const controls = document.getElementById('filterControls');
         const noImage = document.getElementById('noImageSelected');
 

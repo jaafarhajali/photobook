@@ -194,6 +194,8 @@ const PhotoLibrary = (function() {
             return;
         }
 
+        let placedIndex = -1;
+
         if (page.layoutMode === 'free') {
             // Free mode: position-based placement
             const rect = canvas.getBoundingClientRect();
@@ -215,6 +217,7 @@ const PhotoLibrary = (function() {
                 rotation: 0,
                 zIndex: page.images.length + 1
             });
+            placedIndex = page.images.length - 1;
         } else {
             // Grid mode: place at selected slot or next available
             const maxSlots = getGridMaxSlots(page);
@@ -226,6 +229,7 @@ const PhotoLibrary = (function() {
                     page.images.push(null);
                 }
                 page.images[targetSlot] = photo.src;
+                placedIndex = targetSlot;
                 window.selectedGridSlot = null;
             } else {
                 // Find next empty slot (null gap or append)
@@ -240,6 +244,7 @@ const PhotoLibrary = (function() {
                 for (let i = 0; i < page.images.length; i++) {
                     if (page.images[i] === null) {
                         page.images[i] = photo.src;
+                        placedIndex = i;
                         placed = true;
                         break;
                     }
@@ -247,6 +252,7 @@ const PhotoLibrary = (function() {
                 // Otherwise append
                 if (!placed) {
                     page.images.push(photo.src);
+                    placedIndex = page.images.length - 1;
                 }
                 window.selectedGridSlot = null;
             }
