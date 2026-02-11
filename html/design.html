@@ -399,7 +399,13 @@
 
     <script>
         // Load book data from localStorage
-        let bookData = JSON.parse(localStorage.getItem('bookData'));
+        let bookData;
+        try {
+            bookData = JSON.parse(localStorage.getItem('bookData'));
+        } catch (e) {
+            console.error('Failed to load bookData:', e);
+            bookData = null;
+        }
         let currentPageIndex = parseInt(localStorage.getItem('currentPageIndex')) || 0;
         let selectedTextBlockIndex = null;
         // Track which grid cell the user clicked so the next library photo goes there
@@ -420,6 +426,17 @@
             if (lastSavedState !== null) {
                 undoHistory.push(lastSavedState);
                 if (undoHistory.length > MAX_HISTORY) undoHistory.shift();
+
+                // Memory guard: estimate total undo memory and trim if > 30MB
+                var totalSize = 0;
+                for (var i = 0; i < undoHistory.length; i++) {
+                    totalSize += undoHistory[i].length * 2; // ~2 bytes per char
+                }
+                while (totalSize > 30 * 1024 * 1024 && undoHistory.length > 2) {
+                    totalSize -= undoHistory[0].length * 2;
+                    undoHistory.shift();
+                }
+
                 redoHistory.length = 0;
                 updateUndoRedoButtons();
             }
@@ -483,7 +500,9 @@
             const legacyLibrary = localStorage.getItem('photoLibrary');
             if (legacyLibrary) {
                 try {
-                    const legacyPhotos = JSON.parse(legacyLibrary);
+                    let legacyPhotos;
+                    try { legacyPhotos = JSON.parse(legacyLibrary); }
+                    catch (e) { legacyPhotos = []; }
                     if (Array.isArray(legacyPhotos) && legacyPhotos.length > 0) {
                         const existingSrcs = new Set(bookData.photoLibrary.map(p => p.src));
                         legacyPhotos.forEach(photo => {
@@ -783,9 +802,14 @@
             }, false);
         }
 
-        // Render current page
+        // Render current page (with error boundary)
         function renderCurrentPage() {
+          try {
             const page = bookData.pages[currentPageIndex];
+            if (!page) {
+                console.error('renderCurrentPage: invalid page index', currentPageIndex);
+                return;
+            }
             const canvas = document.getElementById('pageCanvas');
             const imageContainer = document.getElementById('imageContainer');
             const textContainer = document.getElementById('textContainer');
@@ -884,19 +908,25 @@
                     imgDiv.setAttribute('data-x', imgObj.x);
                     imgDiv.setAttribute('data-y', imgObj.y);
 
-                    imgDiv.innerHTML = `
-                        <img src="${imgObj.src}" alt="Photo ${index + 1}">
-                        <button class="delete-image" onclick="event.stopPropagation(); deleteImage(${index})">
-                            <i class="fas fa-times"></i>
-                        </button>
-                        <div class="rotation-handle" title="Drag to rotate">
-                            <i class="fas fa-redo"></i>
-                        </div>
-                    `;
+                    var freeImg = document.createElement('img');
+                    freeImg.src = imgObj.src;
+                    freeImg.alt = 'Photo ' + (index + 1);
+                    var freeDelBtn = document.createElement('button');
+                    freeDelBtn.className = 'delete-image';
+                    freeDelBtn.innerHTML = '<i class="fas fa-times"></i>';
+                    freeDelBtn.addEventListener('click', (function(idx) {
+                        return function(ev) { ev.stopPropagation(); deleteImage(idx); };
+                    })(index));
+                    var freeRotHandle = document.createElement('div');
+                    freeRotHandle.className = 'rotation-handle';
+                    freeRotHandle.title = 'Drag to rotate';
+                    freeRotHandle.innerHTML = '<i class="fas fa-redo"></i>';
+                    imgDiv.appendChild(freeImg);
+                    imgDiv.appendChild(freeDelBtn);
+                    imgDiv.appendChild(freeRotHandle);
 
                     if (imgObj.filters) {
-                        const imgEl = imgDiv.querySelector('img');
-                        if (imgEl) imgEl.style.filter = ImageFilters.buildFilterCss(imgObj.filters);
+                        freeImg.style.filter = ImageFilters.buildFilterCss(imgObj.filters);
                     }
 
                     // Tap to select for filter editing
@@ -935,17 +965,21 @@
                         }
 
                         const src = typeof imageData === 'string' ? imageData : imageData.src;
-                        imgDiv.innerHTML = `
-                            <img src="${src}" alt="Photo ${slot + 1}">
-                            <button class="delete-image" onclick="event.stopPropagation(); deleteImage(${slot})">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        `;
+                        var gridImg = document.createElement('img');
+                        gridImg.src = src;
+                        gridImg.alt = 'Photo ' + (slot + 1);
+                        var gridDelBtn = document.createElement('button');
+                        gridDelBtn.className = 'delete-image';
+                        gridDelBtn.innerHTML = '<i class="fas fa-times"></i>';
+                        gridDelBtn.addEventListener('click', (function(s) {
+                            return function(ev) { ev.stopPropagation(); deleteImage(s); };
+                        })(slot));
+                        imgDiv.appendChild(gridImg);
+                        imgDiv.appendChild(gridDelBtn);
 
                         const gridFilters = (typeof imageData === 'object') ? imageData.filters : null;
                         if (gridFilters) {
-                            const imgEl = imgDiv.querySelector('img');
-                            if (imgEl) imgEl.style.filter = ImageFilters.buildFilterCss(gridFilters);
+                            gridImg.style.filter = ImageFilters.buildFilterCss(gridFilters);
                         }
 
                         // Tap to select for filter editing
@@ -1145,6 +1179,12 @@
             // Always reinit for text blocks (draggable in both modes)
             // and for images in free mode
             FreeLayout.reinitialize();
+          } catch (err) {
+            console.error('renderCurrentPage error:', err);
+            if (typeof PageManager !== 'undefined' && PageManager.showToast) {
+                PageManager.showToast('Render error. Please refresh if things look wrong.', 'error');
+            }
+          }
         }
 
         // Delete image
@@ -1209,12 +1249,21 @@
             }
         }
 
-        // Save functions
+        // Save functions with debounce for heavy use
+        let _saveTimer = null;
+
         function saveBookData() {
             pushUndoState();
             const currentState = JSON.stringify(bookData);
             lastSavedState = currentState;
-            localStorage.setItem('bookData', currentState);
+            try {
+                localStorage.setItem('bookData', currentState);
+            } catch (e) {
+                console.error('Storage write failed:', e);
+                if (typeof PageManager !== 'undefined' && PageManager.showToast) {
+                    PageManager.showToast('Storage full! Remove some photos.', 'error');
+                }
+            }
         }
 
         function saveCurrentPageIndex() {

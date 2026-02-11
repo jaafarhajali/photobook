@@ -311,11 +311,13 @@ const PageManager = (function() {
         }
 
         const toast = document.createElement('div');
-        toast.className = `toast-notification ${type}`;
-        toast.innerHTML = `
-            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
-            <span>${message}</span>
-        `;
+        toast.className = 'toast-notification ' + type;
+        var icon = document.createElement('i');
+        icon.className = 'fas fa-' + (type === 'success' ? 'check-circle' : 'exclamation-circle');
+        var span = document.createElement('span');
+        span.textContent = message;
+        toast.appendChild(icon);
+        toast.appendChild(span);
 
         container.appendChild(toast);
         setTimeout(() => toast.classList.add('show'), 10);

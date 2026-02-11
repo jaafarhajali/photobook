@@ -361,14 +361,25 @@ const TextEditor = (function() {
             return;
         }
 
-        list.innerHTML = textBlocks.map((block, index) => `
-            <div class="text-block-item ${index === selectedIndex ? 'active' : ''}" data-index="${index}">
-                <div class="text-block-preview">${block.content || 'Empty text'}</div>
-                <button class="text-block-delete" data-index="${index}">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </div>
-        `).join('');
+        list.innerHTML = '';
+        textBlocks.forEach(function(block, index) {
+            var item = document.createElement('div');
+            item.className = 'text-block-item' + (index === selectedIndex ? ' active' : '');
+            item.dataset.index = index;
+
+            var preview = document.createElement('div');
+            preview.className = 'text-block-preview';
+            preview.textContent = block.content || 'Empty text';
+
+            var delBtn = document.createElement('button');
+            delBtn.className = 'text-block-delete';
+            delBtn.dataset.index = index;
+            delBtn.innerHTML = '<i class="fas fa-trash"></i>';
+
+            item.appendChild(preview);
+            item.appendChild(delBtn);
+            list.appendChild(item);
+        });
 
         list.querySelectorAll('.text-block-item').forEach(item => {
             item.addEventListener('click', (e) => {

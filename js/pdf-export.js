@@ -162,46 +162,54 @@ const PDFExport = (function() {
             const percent = Math.round(((i + 1) / totalPages) * 100);
             updateProgress(percent, `Rendering page ${i + 1} of ${totalPages}...`);
 
-            currentPageIndex = i;
-            renderCurrentPage();
+            try {
+                currentPageIndex = i;
+                renderCurrentPage();
 
-            // Wait for render
-            await new Promise(resolve => setTimeout(resolve, 300));
+                // Wait for render
+                await new Promise(resolve => setTimeout(resolve, 300));
 
-            const pageCanvas = document.getElementById('pageCanvas');
+                const pageCanvas = document.getElementById('pageCanvas');
 
-            // Hide UI elements and store selected state
-            pageCanvas.querySelectorAll('.delete-image, .rotation-handle, .resize-handle').forEach(el => {
-                el.style.visibility = 'hidden';
-            });
-            const selectedElements = Array.from(pageCanvas.querySelectorAll('.selected, .editing'));
-            selectedElements.forEach(el => {
-                el.classList.remove('selected', 'editing');
-                el.dataset.wasSelected = 'true'; // Mark for restoration
-            });
+                // Hide UI elements and store selected state
+                pageCanvas.querySelectorAll('.delete-image, .rotation-handle, .resize-handle').forEach(el => {
+                    el.style.visibility = 'hidden';
+                });
+                const selectedElements = Array.from(pageCanvas.querySelectorAll('.selected, .editing'));
+                selectedElements.forEach(el => {
+                    el.classList.remove('selected', 'editing');
+                    el.dataset.wasSelected = 'true';
+                });
 
-            const canvas = await html2canvas(pageCanvas, {
-                scale: scale,
-                useCORS: true,
-                logging: false,
-                backgroundColor: bookData.pages[i].backgroundColor || '#ffffff'
-            });
+                const canvas = await html2canvas(pageCanvas, {
+                    scale: scale,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: bookData.pages[i].backgroundColor || '#ffffff'
+                });
 
-            // Restore UI elements and selection state
-            pageCanvas.querySelectorAll('.delete-image, .rotation-handle, .resize-handle').forEach(el => {
-                el.style.visibility = '';
-            });
-            selectedElements.forEach(el => {
-                if (el.dataset.wasSelected === 'true') {
-                    el.classList.add('selected');
-                    delete el.dataset.wasSelected;
-                }
-            });
+                // Restore UI elements and selection state
+                pageCanvas.querySelectorAll('.delete-image, .rotation-handle, .resize-handle').forEach(el => {
+                    el.style.visibility = '';
+                });
+                selectedElements.forEach(el => {
+                    if (el.dataset.wasSelected === 'true') {
+                        el.classList.add('selected');
+                        delete el.dataset.wasSelected;
+                    }
+                });
 
-            const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
 
-            if (i > 0) pdf.addPage();
-            pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
+                if (i > 0) pdf.addPage();
+                pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
+            } catch (pageError) {
+                console.error('Error rendering page ' + (i + 1) + ':', pageError);
+                // Add a blank page with error text so export continues
+                if (i > 0) pdf.addPage();
+                pdf.setFontSize(14);
+                pdf.text('Page ' + (i + 1) + ' could not be rendered', pageWidth / 2, pageHeight / 2, { align: 'center' });
+            }
         }
 
         currentPageIndex = originalPageIndex;
@@ -211,7 +219,7 @@ const PDFExport = (function() {
         const filenameInput = document.getElementById('exportFilename');
         let filename = filenameInput ? filenameInput.value.trim() : 'my-photobook';
         if (!filename) filename = 'my-photobook';
-        // Remove invalid characters and ensure .pdf extension
+        // Remove invalid characters
         filename = filename.replace(/[^a-zA-Z0-9-_\s]/g, '');
         if (!filename.toLowerCase().endsWith('.pdf')) {
             filename += '.pdf';

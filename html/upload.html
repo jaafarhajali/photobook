@@ -113,31 +113,28 @@
 
         // Load existing library from bookData in localStorage
         function loadLibrary() {
-            // Load bookData (created by setup.html)
             const storedBook = localStorage.getItem('bookData');
             if (storedBook) {
-                bookData = JSON.parse(storedBook);
-                if (!bookData.photoLibrary) bookData.photoLibrary = [];
+                try { bookData = JSON.parse(storedBook); } catch (e) { bookData = null; }
+                if (bookData && !bookData.photoLibrary) bookData.photoLibrary = [];
             } else {
-                // No bookData yet - create minimal structure
                 bookData = { photoLibrary: [] };
             }
 
             // Also check standalone photoLibrary key (legacy support) and merge
             const storedLegacy = localStorage.getItem('photoLibrary');
             if (storedLegacy) {
-                const legacyPhotos = JSON.parse(storedLegacy);
-                if (legacyPhotos.length > 0) {
+                let legacyPhotos;
+                try { legacyPhotos = JSON.parse(storedLegacy); } catch (e) { legacyPhotos = []; }
+                if (legacyPhotos && legacyPhotos.length > 0) {
                     const existingSrcs = new Set(bookData.photoLibrary.map(p => p.src));
                     legacyPhotos.forEach(photo => {
                         if (!existingSrcs.has(photo.src)) {
-                            // Ensure photo has all required fields
                             if (!photo.name) photo.name = 'Photo';
                             if (!photo.dateAdded) photo.dateAdded = new Date().toISOString();
                             bookData.photoLibrary.push(photo);
                         }
                     });
-                    // Clear legacy key after merging
                     localStorage.removeItem('photoLibrary');
                     saveLibrary();
                 }
@@ -168,14 +165,24 @@
 
             count.textContent = photoLibrary.length;
 
-            grid.innerHTML = photoLibrary.map((photo, index) => `
-                <div class="photo-grid-item">
-                    <img src="${photo.src}" alt="${photo.name || 'Photo ' + (index + 1)}">
-                    <button class="photo-grid-delete" onclick="deletePhoto(${index})">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            `).join('');
+            grid.innerHTML = '';
+            photoLibrary.forEach(function(photo, index) {
+                var item = document.createElement('div');
+                item.className = 'photo-grid-item';
+
+                var img = document.createElement('img');
+                img.src = photo.src;
+                img.alt = photo.name || 'Photo ' + (index + 1);
+
+                var deleteBtn = document.createElement('button');
+                deleteBtn.className = 'photo-grid-delete';
+                deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+                deleteBtn.addEventListener('click', function() { deletePhoto(index); });
+
+                item.appendChild(img);
+                item.appendChild(deleteBtn);
+                grid.appendChild(item);
+            });
         }
 
         // Add photo to library
@@ -196,7 +203,6 @@
                 renderLibrary();
             };
             img.onerror = function() {
-                // Fallback: add without dimensions
                 const photo = {
                     id: 'photo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                     src: src,
@@ -223,7 +229,12 @@
         function saveLibrary() {
             if (bookData) {
                 bookData.photoLibrary = photoLibrary;
-                localStorage.setItem('bookData', JSON.stringify(bookData));
+                try {
+                    localStorage.setItem('bookData', JSON.stringify(bookData));
+                } catch (e) {
+                    console.error('Save failed:', e);
+                    alert('Storage is full. Try removing some photos.');
+                }
             }
         }
 
@@ -231,14 +242,14 @@
         document.getElementById('fileUpload').addEventListener('change', function(e) {
             const files = Array.from(e.target.files);
 
+            // Process files sequentially to avoid memory spikes
             files.forEach(file => {
-                if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        addPhoto(event.target.result, file.name);
-                    };
-                    reader.readAsDataURL(file);
-                }
+                if (!file.type.startsWith('image/')) return;
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    addPhoto(event.target.result, file.name);
+                };
+                reader.readAsDataURL(file);
             });
 
             // Reset input
