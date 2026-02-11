@@ -1,39 +1,125 @@
 /**
  * Photo Library Module
- * Handles global photo storage, upload, and drag-to-canvas
+ * Handles global photo storage, upload, and drag-to-canvas.
+ * Image data (src) is stored in IndexedDB via PhotoDB.
+ * Only metadata (id, name, dimensions) is kept in bookData/localStorage.
  */
 
 const PhotoLibrary = (function() {
     let draggedPhoto = null;
 
-    function init() {
-        loadLibrary();
-        renderLibrary();
-        setupDropZone();
+    // In-memory cache of photo src data loaded from IndexedDB
+    // Key: photo id, Value: base64 data URL
+    let srcCache = {};
+
+    /**
+     * Compress an image to reduce storage usage.
+     * Resizes to max 1600px and compresses to JPEG ~80% quality.
+     */
+    function compressImage(dataUrl, callback) {
+        var img = new Image();
+        img.onload = function() {
+            var maxW = 1600, maxH = 1600;
+            var w = img.naturalWidth;
+            var h = img.naturalHeight;
+
+            if (w > maxW || h > maxH) {
+                var ratio = Math.min(maxW / w, maxH / h);
+                w = Math.round(w * ratio);
+                h = Math.round(h * ratio);
+            }
+
+            try {
+                var canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                var ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, w, h);
+                var compressed = canvas.toDataURL('image/jpeg', 0.80);
+                // Use compressed only if smaller
+                callback(compressed.length < dataUrl.length ? compressed : dataUrl, w, h);
+            } catch (e) {
+                callback(dataUrl, img.naturalWidth, img.naturalHeight);
+            }
+        };
+        img.onerror = function() {
+            callback(dataUrl, 0, 0);
+        };
+        img.src = dataUrl;
     }
 
+    function init() {
+        loadLibrary();
+    }
+
+    /**
+     * Load the library: migrate any old src data into IndexedDB,
+     * then load all src from IndexedDB into memory cache, then render.
+     */
     function loadLibrary() {
         if (!bookData.photoLibrary) {
             bookData.photoLibrary = [];
-            // Migrate existing images
+            // Migrate existing page images into library
             bookData.pages.forEach(page => {
                 if (page.images && page.images.length > 0) {
                     page.images.forEach(img => {
                         const src = typeof img === 'string' ? img : img.src;
-                        const exists = bookData.photoLibrary.some(p => p.src === src);
-                        if (!exists) {
+                        const exists = bookData.photoLibrary.some(p => p.id && srcCache[p.id] === src);
+                        if (!exists && src) {
                             bookData.photoLibrary.push({
                                 id: 'photo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-                                src: src,
-                                name: `Image ${bookData.photoLibrary.length + 1}`,
+                                src: src, // will be migrated below
+                                name: 'Image ' + (bookData.photoLibrary.length + 1),
                                 dateAdded: new Date().toISOString()
                             });
                         }
                     });
                 }
             });
-            saveBookData();
         }
+
+        // Migrate: if any library entries still have a .src field, move it to IndexedDB
+        var toMigrate = [];
+        bookData.photoLibrary.forEach(function(photo) {
+            if (photo.src) {
+                toMigrate.push({ id: photo.id, src: photo.src });
+                srcCache[photo.id] = photo.src;
+            }
+        });
+
+        if (toMigrate.length > 0) {
+            PhotoDB.saveMany(toMigrate).then(function() {
+                // Remove src from metadata to free localStorage space
+                bookData.photoLibrary.forEach(function(photo) {
+                    delete photo.src;
+                });
+                saveBookData();
+                renderLibrary();
+                setupDropZone();
+            }).catch(function() {
+                // If IndexedDB fails, keep src in memory at least
+                renderLibrary();
+                setupDropZone();
+            });
+        } else {
+            // Load src data from IndexedDB into cache
+            PhotoDB.getAllPhotos().then(function(map) {
+                srcCache = map;
+                renderLibrary();
+                setupDropZone();
+            }).catch(function() {
+                renderLibrary();
+                setupDropZone();
+            });
+        }
+    }
+
+    /**
+     * Get the image src for a photo (from in-memory cache).
+     * Returns the base64 data URL or empty string if not loaded yet.
+     */
+    function getPhotoSrc(photoId) {
+        return srcCache[photoId] || '';
     }
 
     function renderLibrary() {
@@ -41,32 +127,29 @@ const PhotoLibrary = (function() {
         if (!container) return;
 
         if (bookData.photoLibrary.length === 0) {
-            container.innerHTML = `
-                <div class="empty-state-compact">
-                    <i class="fas fa-images"></i>
-                    <span>No photos yet</span>
-                    <label for="libraryUpload" class="btn-action" style="margin-top: 8px; padding: 8px 16px; font-size: 0.8125rem; cursor: pointer;">
-                        <i class="fas fa-upload"></i> Upload Photos
-                    </label>
-                </div>
-            `;
+            container.innerHTML = '<div class="empty-state-compact">' +
+                '<i class="fas fa-images"></i>' +
+                '<span>No photos yet</span>' +
+                '<label for="libraryUpload" class="btn-action" style="margin-top: 8px; padding: 8px 16px; font-size: 0.8125rem; cursor: pointer;">' +
+                '<i class="fas fa-upload"></i> Upload Photos</label></div>';
             updatePhotoCount();
             return;
         }
 
         container.innerHTML = '';
         bookData.photoLibrary.forEach((photo, index) => {
+            const src = srcCache[photo.id] || '';
+            if (!src) return; // skip if image not loaded yet
+
             const item = document.createElement('div');
             item.className = 'photo-grid-item';
             item.dataset.photoId = photo.id;
             item.draggable = true;
 
-            item.innerHTML = `
-                <img src="${photo.src}" alt="${photo.name || 'Photo'}" loading="lazy">
-                <button class="photo-grid-delete" title="Remove from library">
-                    <i class="fas fa-times"></i>
-                </button>
-            `;
+            item.innerHTML =
+                '<img src="' + src + '" alt="' + (photo.name || 'Photo') + '" loading="lazy">' +
+                '<button class="photo-grid-delete" title="Remove from library">' +
+                '<i class="fas fa-times"></i></button>';
 
             // Single click adds photo to current page
             item.addEventListener('click', (e) => {
@@ -116,42 +199,48 @@ const PhotoLibrary = (function() {
             return;
         }
 
+        let processed = 0;
+
         imageFiles.forEach(file => {
-            console.log('Processing file:', file.name);
             const reader = new FileReader();
             reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
+                // Compress before storing
+                compressImage(e.target.result, function(compressedSrc, w, h) {
+                    const photoId = 'photo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+                    // Metadata only (no src) — goes to bookData/localStorage
                     const photo = {
-                        id: 'photo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-                        src: e.target.result,
+                        id: photoId,
                         name: file.name,
-                        width: img.naturalWidth,
-                        height: img.naturalHeight,
-                        aspectRatio: img.naturalWidth / img.naturalHeight,
+                        width: w,
+                        height: h,
+                        aspectRatio: (w && h) ? w / h : 1,
                         fileSize: file.size,
                         dateAdded: new Date().toISOString()
                     };
 
                     bookData.photoLibrary.push(photo);
-                    processed++;
 
-                    if (processed === imageFiles.length) {
-                        saveBookData();
-                        renderLibrary();
-                        if (typeof PageManager !== 'undefined' && PageManager.showToast) {
-                            PageManager.showToast(processed + ' photo(s) added');
+                    // Image data goes to IndexedDB
+                    srcCache[photoId] = compressedSrc;
+                    PhotoDB.savePhoto(photoId, compressedSrc).then(function() {
+                        processed++;
+                        if (processed === imageFiles.length) {
+                            saveBookData();
+                            renderLibrary();
+                            if (typeof PageManager !== 'undefined' && PageManager.showToast) {
+                                PageManager.showToast(processed + ' photo(s) added');
+                            }
                         }
-                    }
-                };
-                img.onerror = function() {
-                    processed++;
-                    if (processed === imageFiles.length && bookData.photoLibrary.length > 0) {
-                        saveBookData();
-                        renderLibrary();
-                    }
-                };
-                img.src = e.target.result;
+                    }).catch(function(err) {
+                        console.error('Failed to save photo to IndexedDB:', err);
+                        processed++;
+                        if (processed === imageFiles.length) {
+                            saveBookData();
+                            renderLibrary();
+                        }
+                    });
+                });
             };
             reader.readAsDataURL(file);
         });
@@ -165,6 +254,10 @@ const PhotoLibrary = (function() {
             bookData.photoLibrary.splice(index, 1);
         }
 
+        // Remove from IndexedDB and cache
+        delete srcCache[photoId];
+        PhotoDB.deletePhoto(photoId);
+
         saveBookData();
         renderLibrary();
         PageManager.showToast('Photo removed');
@@ -175,6 +268,13 @@ const PhotoLibrary = (function() {
         if (!photo) {
             console.warn('PhotoLibrary: Photo not found in library:', photoId);
             PageManager.showToast('Photo not found in library', 'error');
+            return;
+        }
+
+        const src = srcCache[photoId];
+        if (!src) {
+            console.warn('PhotoLibrary: Photo src not loaded for:', photoId);
+            PageManager.showToast('Photo not ready yet, try again', 'error');
             return;
         }
 
@@ -200,7 +300,7 @@ const PhotoLibrary = (function() {
             const posY = y !== null ? y : (rect.height - height) / 2;
 
             page.images.push({
-                src: photo.src,
+                src: src,
                 photoId: photoId,
                 x: posX,
                 y: posY,
@@ -217,15 +317,13 @@ const PhotoLibrary = (function() {
             const targetSlot = (typeof window.selectedGridSlot === 'number') ? window.selectedGridSlot : null;
 
             if (targetSlot !== null && targetSlot < maxSlots) {
-                // Place at the specific slot the user clicked
                 while (page.images.length <= targetSlot) {
                     page.images.push(null);
                 }
-                page.images[targetSlot] = photo.src;
+                page.images[targetSlot] = src;
                 placedIndex = targetSlot;
                 window.selectedGridSlot = null;
             } else {
-                // Find next empty slot (null gap or append)
                 const filledCount = page.images.filter(img => img !== null && img !== undefined).length;
                 if (filledCount >= maxSlots) {
                     PageManager.showToast('Grid is full. Use a larger template or switch to Free mode.', 'error');
@@ -233,18 +331,16 @@ const PhotoLibrary = (function() {
                 }
 
                 let placed = false;
-                // First try to fill a null gap
                 for (let i = 0; i < page.images.length; i++) {
                     if (page.images[i] === null) {
-                        page.images[i] = photo.src;
+                        page.images[i] = src;
                         placedIndex = i;
                         placed = true;
                         break;
                     }
                 }
-                // Otherwise append
                 if (!placed) {
-                    page.images.push(photo.src);
+                    page.images.push(src);
                     placedIndex = page.images.length - 1;
                 }
                 window.selectedGridSlot = null;
@@ -285,7 +381,6 @@ const PhotoLibrary = (function() {
         const canvas = document.getElementById('pageCanvas');
         if (!canvas) return;
 
-        // Handle dragover on canvas and all children (via capture phase for reliability)
         canvas.addEventListener('dragover', (e) => {
             if (draggedPhoto || isDragFromLibrary(e)) {
                 e.preventDefault();
@@ -295,7 +390,6 @@ const PhotoLibrary = (function() {
         });
 
         canvas.addEventListener('dragleave', (e) => {
-            // Check if mouse left canvas entirely (not just moved to child element)
             const rect = canvas.getBoundingClientRect();
             if (e.clientX < rect.left || e.clientX >= rect.right ||
                 e.clientY < rect.top || e.clientY >= rect.bottom) {
@@ -322,7 +416,6 @@ const PhotoLibrary = (function() {
             }
         });
 
-        // Also listen on imageContainer to ensure events aren't swallowed
         const imageContainer = document.getElementById('imageContainer');
         if (imageContainer) {
             imageContainer.addEventListener('dragover', (e) => {
@@ -370,6 +463,7 @@ const PhotoLibrary = (function() {
         deleteFromLibrary,
         addPhotoToPage,
         getGridMaxSlots,
+        getPhotoSrc: getPhotoSrc,
         getDraggedPhoto: function() { return draggedPhoto; }
     };
 })();

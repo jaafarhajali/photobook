@@ -390,6 +390,7 @@
     <script src="../js/ui-manager.js"></script>
     <script src="../js/touch-gestures.js"></script>
     <script src="../js/page-manager.js"></script>
+    <script src="../js/indexed-db.js"></script>
     <script src="../js/photo-library.js"></script>
     <script src="../js/grid-layout.js"></script>
     <script src="../js/free-layout.js"></script>
@@ -1254,15 +1255,29 @@
 
         function saveBookData() {
             pushUndoState();
-            const currentState = JSON.stringify(bookData);
+
+            // Strip .src from photoLibrary before saving to localStorage
+            // (image data lives in IndexedDB, not localStorage)
+            var cleanLibrary = null;
+            if (bookData.photoLibrary) {
+                cleanLibrary = bookData.photoLibrary.map(function(p) {
+                    var copy = {};
+                    for (var key in p) {
+                        if (key !== 'src') copy[key] = p[key];
+                    }
+                    return copy;
+                });
+            }
+
+            var toSave = Object.assign({}, bookData);
+            if (cleanLibrary) toSave.photoLibrary = cleanLibrary;
+
+            var currentState = JSON.stringify(toSave);
             lastSavedState = currentState;
             try {
                 localStorage.setItem('bookData', currentState);
             } catch (e) {
                 console.error('Storage write failed:', e);
-                if (typeof PageManager !== 'undefined' && PageManager.showToast) {
-                    PageManager.showToast('Storage full! Remove some photos.', 'error');
-                }
             }
         }
 

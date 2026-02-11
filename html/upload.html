@@ -104,14 +104,16 @@
     <!-- Bootstrap Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Photo Library Module -->
-    <script src="../js/photo-library.js"></script>
+    <!-- IndexedDB helper (must load before photo logic) -->
+    <script src="../js/indexed-db.js"></script>
 
     <script>
         let photoLibrary = [];
         let bookData = null;
+        // In-memory cache: photo id -> base64 src
+        let srcCache = {};
 
-        // Load existing library from bookData in localStorage
+        // Load existing library from bookData in localStorage + IndexedDB
         function loadLibrary() {
             const storedBook = localStorage.getItem('bookData');
             if (storedBook) {
@@ -121,27 +123,45 @@
                 bookData = { photoLibrary: [] };
             }
 
-            // Also check standalone photoLibrary key (legacy support) and merge
+            // Legacy migration
             const storedLegacy = localStorage.getItem('photoLibrary');
             if (storedLegacy) {
                 let legacyPhotos;
                 try { legacyPhotos = JSON.parse(storedLegacy); } catch (e) { legacyPhotos = []; }
                 if (legacyPhotos && legacyPhotos.length > 0) {
-                    const existingSrcs = new Set(bookData.photoLibrary.map(p => p.src));
-                    legacyPhotos.forEach(photo => {
-                        if (!existingSrcs.has(photo.src)) {
-                            if (!photo.name) photo.name = 'Photo';
-                            if (!photo.dateAdded) photo.dateAdded = new Date().toISOString();
-                            bookData.photoLibrary.push(photo);
-                        }
+                    legacyPhotos.forEach(function(photo) {
+                        if (!photo.name) photo.name = 'Photo';
+                        if (!photo.dateAdded) photo.dateAdded = new Date().toISOString();
+                        bookData.photoLibrary.push(photo);
                     });
                     localStorage.removeItem('photoLibrary');
-                    saveLibrary();
                 }
             }
 
             photoLibrary = bookData.photoLibrary;
-            renderLibrary();
+
+            // Migrate: if any entries still have .src, move to IndexedDB
+            var toMigrate = [];
+            photoLibrary.forEach(function(photo) {
+                if (photo.src) {
+                    toMigrate.push({ id: photo.id, src: photo.src });
+                    srcCache[photo.id] = photo.src;
+                }
+            });
+
+            if (toMigrate.length > 0) {
+                PhotoDB.saveMany(toMigrate).then(function() {
+                    photoLibrary.forEach(function(photo) { delete photo.src; });
+                    saveLibrary();
+                    renderLibrary();
+                });
+            } else {
+                // Load image data from IndexedDB
+                PhotoDB.getAllPhotos().then(function(map) {
+                    srcCache = map;
+                    renderLibrary();
+                });
+            }
         }
 
         // Render photo library grid
@@ -150,15 +170,10 @@
             const count = document.getElementById('photoCount');
 
             if (photoLibrary.length === 0) {
-                grid.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">
-                            <i class="fas fa-images"></i>
-                        </div>
-                        <div class="empty-title">No photos yet</div>
-                        <div class="empty-desc">Tap above to add photos</div>
-                    </div>
-                `;
+                grid.innerHTML = '<div class="empty-state">' +
+                    '<div class="empty-icon"><i class="fas fa-images"></i></div>' +
+                    '<div class="empty-title">No photos yet</div>' +
+                    '<div class="empty-desc">Tap above to add photos</div></div>';
                 count.textContent = '0';
                 return;
             }
@@ -167,11 +182,14 @@
 
             grid.innerHTML = '';
             photoLibrary.forEach(function(photo, index) {
+                var src = srcCache[photo.id] || '';
+                if (!src) return;
+
                 var item = document.createElement('div');
                 item.className = 'photo-grid-item';
 
                 var img = document.createElement('img');
-                img.src = photo.src;
+                img.src = src;
                 img.alt = photo.name || 'Photo ' + (index + 1);
 
                 var deleteBtn = document.createElement('button');
@@ -185,55 +203,87 @@
             });
         }
 
-        // Add photo to library
-        function addPhoto(src, fileName) {
-            const img = new Image();
+        // Compress image before storing
+        function compressImage(dataUrl, callback) {
+            var img = new Image();
             img.onload = function() {
-                const photo = {
-                    id: 'photo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-                    src: src,
+                var maxW = 1600, maxH = 1600;
+                var w = img.naturalWidth, h = img.naturalHeight;
+                if (w > maxW || h > maxH) {
+                    var ratio = Math.min(maxW / w, maxH / h);
+                    w = Math.round(w * ratio);
+                    h = Math.round(h * ratio);
+                }
+                try {
+                    var canvas = document.createElement('canvas');
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    var compressed = canvas.toDataURL('image/jpeg', 0.80);
+                    callback(compressed.length < dataUrl.length ? compressed : dataUrl, w, h);
+                } catch (e) {
+                    callback(dataUrl, img.naturalWidth, img.naturalHeight);
+                }
+            };
+            img.onerror = function() { callback(dataUrl, 0, 0); };
+            img.src = dataUrl;
+        }
+
+        // Add photo to library — metadata in localStorage, image data in IndexedDB
+        function addPhoto(src, fileName) {
+            compressImage(src, function(compressedSrc, w, h) {
+                var photoId = 'photo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                var photo = {
+                    id: photoId,
                     name: fileName || 'Photo',
-                    width: img.naturalWidth,
-                    height: img.naturalHeight,
-                    aspectRatio: img.naturalWidth / img.naturalHeight,
+                    width: w,
+                    height: h,
+                    aspectRatio: (w && h) ? w / h : 1,
                     dateAdded: new Date().toISOString()
                 };
                 photoLibrary.push(photo);
-                saveLibrary();
-                renderLibrary();
-            };
-            img.onerror = function() {
-                const photo = {
-                    id: 'photo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-                    src: src,
-                    name: fileName || 'Photo',
-                    dateAdded: new Date().toISOString()
-                };
-                photoLibrary.push(photo);
-                saveLibrary();
-                renderLibrary();
-            };
-            img.src = src;
+                srcCache[photoId] = compressedSrc;
+
+                // Save image to IndexedDB, metadata to localStorage
+                PhotoDB.savePhoto(photoId, compressedSrc).then(function() {
+                    saveLibrary();
+                    renderLibrary();
+                }).catch(function(err) {
+                    console.error('Failed to save photo to IndexedDB:', err);
+                    saveLibrary();
+                    renderLibrary();
+                });
+            });
         }
 
         // Delete photo from library
         function deletePhoto(index) {
             if (confirm('Delete this photo from your library?')) {
+                var photoId = photoLibrary[index] ? photoLibrary[index].id : null;
                 photoLibrary.splice(index, 1);
+                if (photoId) {
+                    delete srcCache[photoId];
+                    PhotoDB.deletePhoto(photoId);
+                }
                 saveLibrary();
                 renderLibrary();
             }
         }
 
-        // Save library into bookData in localStorage
+        // Save metadata only to localStorage (no image src)
         function saveLibrary() {
             if (bookData) {
-                bookData.photoLibrary = photoLibrary;
+                // Strip src from metadata before saving
+                bookData.photoLibrary = photoLibrary.map(function(p) {
+                    var copy = {};
+                    for (var key in p) {
+                        if (key !== 'src') copy[key] = p[key];
+                    }
+                    return copy;
+                });
                 try {
                     localStorage.setItem('bookData', JSON.stringify(bookData));
                 } catch (e) {
                     console.error('Save failed:', e);
-                    alert('Storage is full. Try removing some photos.');
                 }
             }
         }
@@ -242,7 +292,6 @@
         document.getElementById('fileUpload').addEventListener('change', function(e) {
             const files = Array.from(e.target.files);
 
-            // Process files sequentially to avoid memory spikes
             files.forEach(file => {
                 if (!file.type.startsWith('image/')) return;
                 const reader = new FileReader();
@@ -252,7 +301,6 @@
                 reader.readAsDataURL(file);
             });
 
-            // Reset input
             e.target.value = '';
         });
 
