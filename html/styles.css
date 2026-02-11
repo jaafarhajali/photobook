@@ -3143,7 +3143,7 @@ button:focus-visible,
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
     padding: 0;
 }
 
@@ -3241,6 +3241,160 @@ button:focus-visible,
 @keyframes float {
     0%, 100% { transform: translateY(0px); }
     50% { transform: translateY(-20px); }
+}
+
+/* ====== Lunara Brand ====== */
+.lunara-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+/* Moon container */
+.lunara-moon-wrap {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+/* Orbiting rings */
+.moon-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+}
+
+.moon-ring-1 {
+    width: 160px;
+    height: 160px;
+    animation: ringRotate 12s linear infinite;
+    border-top-color: rgba(255, 255, 255, 0.4);
+}
+
+.moon-ring-2 {
+    width: 130px;
+    height: 130px;
+    animation: ringRotate 8s linear infinite reverse;
+    border-right-color: rgba(236, 72, 153, 0.5);
+    border-left-color: rgba(236, 72, 153, 0.5);
+}
+
+.moon-ring-3 {
+    width: 100px;
+    height: 100px;
+    animation: ringRotate 15s linear infinite;
+    border-bottom-color: rgba(99, 102, 241, 0.5);
+}
+
+@keyframes ringRotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Stars */
+.moon-stars {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.star {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle 2s ease-in-out infinite;
+}
+
+.star-1 { top: 5%; left: 15%; animation-delay: 0s; }
+.star-2 { top: 20%; right: 5%; animation-delay: 0.7s; }
+.star-3 { bottom: 15%; left: 5%; animation-delay: 1.2s; width: 2px; height: 2px; }
+.star-4 { top: 10%; right: 20%; animation-delay: 0.3s; width: 4px; height: 4px; }
+.star-5 { bottom: 5%; right: 15%; animation-delay: 1.6s; }
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.5); }
+}
+
+/* Moon icon */
+.lunara-moon {
+    font-size: 4rem;
+    background: linear-gradient(135deg, #f9fafb 0%, #e0e7ff 40%, #c4b5fd 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.5));
+    animation: moonGlow 4s ease-in-out infinite;
+    position: relative;
+    z-index: 2;
+}
+
+@keyframes moonGlow {
+    0%, 100% {
+        filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.35));
+        transform: scale(1);
+    }
+    50% {
+        filter: drop-shadow(0 0 40px rgba(255, 255, 255, 0.65));
+        transform: scale(1.05);
+    }
+}
+
+/* Title with letter animation */
+.lunara-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.75rem;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 10px;
+    text-transform: uppercase;
+    margin: 0 0 8px 0;
+    line-height: 1;
+}
+
+.lunara-letter {
+    display: inline-block;
+    animation: letterReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes letterReveal {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Tagline under title */
+.lunara-tagline {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 4px;
+}
+
+@media (max-width: 768px) {
+    .lunara-moon-wrap {
+        width: 130px;
+        height: 130px;
+    }
+    .moon-ring-1 { width: 130px; height: 130px; }
+    .moon-ring-2 { width: 105px; height: 105px; }
+    .moon-ring-3 { width: 80px; height: 80px; }
+    .lunara-moon { font-size: 3.25rem; }
+    .lunara-title { font-size: 2.25rem; letter-spacing: 8px; }
 }
 
 .hero-title {
